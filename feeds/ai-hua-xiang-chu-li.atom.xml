@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Whitepaper Tech Blog - AI, 画像処理</title><link href="https://tech.wpaper-inc.com/" rel="alternate"></link><link href="https://tech.wpaper-inc.com/feeds/ai-hua-xiang-chu-li.atom.xml" rel="self"></link><id>https://tech.wpaper-inc.com/</id><updated>2020-01-06T00:00:00+09:00</updated><entry><title>[JeVois Tutorial 1] Ubuntu18.04でJeVois開発環境作成と、サンプルコードをコマンドラインから実行</title><link href="https://tech.wpaper-inc.com/JeVois-Tutorial-1.html" rel="alternate"></link><published>2020-01-06T00:00:00+09:00</published><updated>2020-01-06T00:00:00+09:00</updated><author><name>Kousuke Takeuchi</name></author><id>tag:tech.wpaper-inc.com,2020-01-06:/JeVois-Tutorial-1.html</id><summary type="html">&lt;p&gt;[JeVois Tutorial 1] Ubuntu18.04でJeVois開発環境作成と、サンプルコードをコマンドラインから実行&lt;/p&gt;</summary><content type="html">&lt;p&gt;jevoisのC++開発環境を作成するために行ったことのメモ&lt;/p&gt;
+&lt;p&gt;もともとJeVoisで顔の特徴量を分析し、USBシリアル経由でホストマシンに送信するために、チュートリアルを読み漁っていたら、JeVoisに関する日本語のまとまった記事がなかったため、細かくメモを取ることにした。&lt;/p&gt;
+&lt;p&gt;Jevoisのプログラミングチュートリアルは&lt;a href="http://jevois.org/tutorials/ProgrammerTutorials.html"&gt;こちら&lt;/a&gt;に掲載されており、&lt;a href="http://jevois.org/tutorials/ProgrammerVbox.html"&gt;Using the pre-installed jevois-sdk VirtualBox for development&lt;/a&gt;にC++開発環境の構築手順が載っていた。ただしすでに環境をビルド済みのVirtualboxコンテナの配布とインストール方法だけしか説明されておらず、中に何がインストールされているか分からないのは気持ちが悪いので、マニュアルで環境構築を行った。&lt;/p&gt;
+&lt;p&gt;マニュアルで環境を構築するために、&lt;a href="http://jevois.org/tutorials/ProgrammerSetup.html"&gt;こちらのページ&lt;/a&gt;を参考にした。&lt;/p&gt;
+&lt;h2&gt;1. VirtualboxでUbuntuの立ち上げ&lt;/h2&gt;
+&lt;p&gt;使用したバージョンは以下の通り&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Windows 10 Pro (1909)&lt;/li&gt;
+&lt;li&gt;Virtualbox 6.0.14&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.ubuntulinux.jp/News/ubuntu1804-ja-remix"&gt;Ubuntu 18.04 (bionic) Japanese Remix&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Virtualboxの仮想環境設定&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;メインメモリー : 8192 [MB]&lt;/li&gt;
+&lt;li&gt;ストレージ : 64 [GB]&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Ubuntuインストール後に、zsh環境と日本語リポジトリへの変更を行った (&lt;a href="https://qiita.com/fkshom/items/53de3a9b9278cd524099"&gt;参考URL&lt;/a&gt;)&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo sed -i.bak -e &lt;span class="s2"&gt;&amp;quot;s%http://jp.archive.ubuntu.com/ubuntu/%http://ftp.iij.ad.jp/pub/linux/ubuntu/archive/%g&amp;quot;&lt;/span&gt; /etc/apt/sources.list
+$ sudo apt update
+$ sudo apt upgrade
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;zsh環境は&lt;a href="https://github.com/skwp/dotfiles"&gt;yadr&lt;/a&gt;を使用&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo apt install -y zsh vim git curl rake
+$ sh -c &lt;span class="s2"&gt;&amp;quot;`curl -fsSL https://raw.githubusercontent.com/skwp/dotfiles/master/install.sh `&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;2. JeVois開発パッケージのインストール&lt;/h2&gt;
+&lt;p&gt;jevoisの開発環境に必要なパッケージは以下の通り。詳細な使用方法は次の記事で検証する。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;jevois-opencv&lt;/strong&gt;: Jevois本体で使用されているOpenCVに合わせて設定された、ホストコンピュータ(Ubuntu)ようにコンパイル済みのOpenCV(4.0.0)。このパッケージは&lt;code&gt;/usr/share/jevois-opencv-4.0.0&lt;/code&gt;にインストールされ、すでにインストールされている他のOpenCVを必要とするパッケージには干渉しない(らしい)。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;jevois-host&lt;/strong&gt;: JeVoisをホストマシンで実行するためのコアソフトウェア&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;jevois-platform&lt;/strong&gt;:  JeVoisのクロスコンパイルのためのコアソフトウェア。UbuntuでコンパイルしてJeVois本体で動かすバイナリーを生成する。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;jevoisbase-host&lt;/strong&gt;: JeVoisのコンパイル済みベースモジュール。ホストマシンで動かすための関数群が定義されている&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;jevoisbase-platform&lt;/strong&gt;: JeVoisのコンパイル済みベースモジュール。こちらはJeVois本体で動かすためにクロスコンパイル時に使用される&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;jevois-sdk&lt;/strong&gt;: ブートローダー/ルートファイルシステム/その他設定ファイル。JeVois本体のSDカードに配置される？(詳細はまだ確認できていない)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;jevois-sdk-dev&lt;/strong&gt;: JeVois本体開発のための、クロスコンパイラーやコンパイルのためのライブラリ&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;また、公式のGitHubリポジトリには以下のパッケージが配布されている。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;jevois:&lt;/strong&gt; C++17のコアソフトウェア&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;jevoisbase:&lt;/strong&gt; マシンビジョンに使用されるJeVois専用モジュールが25個以上ある。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;samplemodule:&lt;/strong&gt; JeVoisのサンプルモジュール。新しいモジュールを作成するときにテンプレートとして使用する。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;samplepythonmodule:&lt;/strong&gt; samplemoduleのPython版。こちらも新しいモジュールの作成時にテンプレートとして使用される。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;jevois-sdk&lt;/strong&gt;: JeVoisのカメラに挿入されているSDカードへデータを送信するための、LinuxカーネルとOSのフレームワーク。これを直接いじることは滅多になさそう&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;インストール手順はGitHubのjevoisリポジトリに&lt;code&gt;INSTALL&lt;/code&gt;というファイルがあったので、こちらを参考にした。&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://github.com/jevois/jevois/blob/master/INSTALL"&gt;https://github.com/jevois/jevois/blob/master/INSTALL&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;ファイルには上記で説明したようなことが長々と記載されている。インストール手順を簡単にまとめる。&lt;/p&gt;
+&lt;h3&gt;2.1. JeVoisの配布リポジトリを登録する&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys DD24C027
+$ sudo add-apt-repository &lt;span class="s2"&gt;&amp;quot;deb http://jevois.usc.edu/apt bionic main&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;INSTALLには&lt;code&gt;bionic&lt;/code&gt;の代わりに&lt;code&gt;xenial&lt;/code&gt;と記載されているので注意。ホストマシンはUbuntu18.04なのでbionicと書き換えた。&lt;/p&gt;
+&lt;p&gt;リポジトリを登録できれば、あとはパッケージリストのアップデートを行う。公式ではupgradeもしろと書いてあるので、念のため実行する。(たぶんあまり意味が無いような気がする)&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo apt update
+$ sudo apt upgrade
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;2.2. JeVoisの開発パッケージをインストールする&lt;/h3&gt;
+&lt;p&gt;パッケージは先述の通り、jevois-hostやjevois-platformなどいろいろあるが、C++の開発とmicroSDへのフラッシュなど一通りやりたい場合は、&lt;code&gt;jevois-sdk-dev&lt;/code&gt;をインストールするらしい。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo apt install jevois-sdk-dev
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;自分の環境では、依存パッケージがインストールできないとエラーがでたので、依存解決してインストールするようにコマンドを実行した。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo apt install --fix-missing
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Virtualboxを使用しているせいか、ネットワーク環境が悪いことでインストールに6時間もかかった。これにより、以下のパッケージがインストールされる&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;jevois-opencv&lt;/li&gt;
+&lt;li&gt;jevois-host&lt;/li&gt;
+&lt;li&gt;jevois-platform&lt;/li&gt;
+&lt;li&gt;jevoisbase-host&lt;/li&gt;
+&lt;li&gt;jevoisbase-platform&lt;/li&gt;
+&lt;li&gt;jevois-sdk&lt;/li&gt;
+&lt;li&gt;jevois-sdk-dev&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;本章冒頭で解説したパッケージが一通りインストールされた。&lt;code&gt;INSTALL&lt;/code&gt;には、132行目まで他のパターンでのインストール内容(Webカメラだけで開発したい場合など)が記載されているが、どれも上のパッケージリストの内包なので、特に確認は不要だと判断した。&lt;/p&gt;
+&lt;h2&gt;3. jevois-daemon&lt;/h2&gt;
+&lt;p&gt;インストールが完了したら、JeVois本体をホストマシンにUSB接続し、Virtualboxの「デバイス &amp;gt; USB &amp;gt; JeVois Inc. JeVois-A33 Smart Camera [0100]」を選択し、ホストからUbuntu仮想環境にマッピングしておく。また、Webカメラも仮想環境にマッピングする「デバイス &amp;gt; Webカメラ &amp;gt; HD Webcam」。&lt;/p&gt;
+&lt;p&gt;そのあと、jevois-hostとjevoisbase-hostに含まれる&lt;code&gt;jevois-daemon&lt;/code&gt;を実行する。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ jevois-daemon
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;jevois-daemonはホストコンピュータのWebカメラにアクセスし、様々なコマンドを受け付ける。例えば、&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;info&lt;/li&gt;
+&lt;li&gt;help&lt;/li&gt;
+&lt;li&gt;listmappings&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;などがある。jevois-daemonを実行した状態で、下記のようにサンプルコマンドを実行してみた&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; info
+INFO: JeVois &lt;span class="m"&gt;1&lt;/span&gt;.14.0
+INFO: Linux version &lt;span class="m"&gt;5&lt;/span&gt;.0.0-37-generic
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;コマンドを入力してから、そこそこ時間(30秒くらい)がかかってからレスポンスが標準出力された。最初はコマンドを受け付けてくれていないと感じたが、時間がかかっているだけのようだ。&lt;/p&gt;
+&lt;p&gt;jevois-daemonを終了するには、quitコマンドを実行する。&lt;code&gt;Ctrl-C&lt;/code&gt;では終了できない。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; quit
+Quit &lt;span class="nb"&gt;command&lt;/span&gt; received - bye-bye!
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;4. HelloJeVoisプログラムの実行&lt;/h2&gt;
+&lt;p&gt;参考 : &lt;a href="http://jevois.org/tutorials/ProgrammerHello.html"&gt;Hello JeVois&lt;/a&gt;&lt;/p&gt;
+&lt;h3&gt;4.1. HelloJeVoisモジュールの作成とビルド&lt;/h3&gt;
+&lt;p&gt;ホームディレクトリに戻り、HelloJeVoisという名前で新しいJeVoisのモジュールを作成する。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ &lt;span class="nb"&gt;cd&lt;/span&gt; &lt;span class="nv"&gt;$HOME&lt;/span&gt;
+$ jevois-create-module Tutorial HelloJeVois
+Create module &lt;span class="o"&gt;[&lt;/span&gt;HelloJeVois&lt;span class="o"&gt;]&lt;/span&gt; from vendor &lt;span class="o"&gt;[&lt;/span&gt;Tutorial&lt;span class="o"&gt;]&lt;/span&gt; in new directory &lt;span class="o"&gt;[&lt;/span&gt;hellojevois&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;Y/n&lt;span class="o"&gt;)&lt;/span&gt;? y
+*** Cloning from samplemodule github...
+Cloning int &lt;span class="s1"&gt;&amp;#39;samplemodule&amp;#39;&lt;/span&gt;...
+&lt;span class="o"&gt;[&lt;/span&gt;以下略&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;ちなみに&lt;code&gt;jevois-create-module&lt;/code&gt;のヘルプを確認すると、ベンダー名とモジュール名を引数で指定するだけのコマンドであることが分かる。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ jevois-create-module --help
+USAGE: jevois-create-module &amp;lt;VendorName&amp;gt; &amp;lt;ModuleName&amp;gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;jevois-create-moduleを実行すると、ホームディレクトリに&lt;code&gt;hellojevois&lt;/code&gt;という名前のディレクトリが作成された。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ tree hellojevois
+hellojevois/
+├── CMakeLists.txt
+├── COPYING
+├── INSTALL
+├── README
+├── rebuild-host.sh
+├── rebuild-platform.sh
+└── src
+    └── Modules
+        └── HelloJeVois
+            ├── HelloJeVois.C
+            ├── icon.png
+            ├── postinstall
+            └── screenshot1.png
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;strong&gt;hellojevois/src/Modules/HelloJeVois.C&lt;/strong&gt;がどうやらメインで書き換えるCのモジュールファイルになるらしい。ディレクトリ直下にはビルド用のシェルスクリプトが2種類あって、&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;rebuild-host.sh&lt;/code&gt; : ホスト環境のWebカメラでモジュールを実行する (デバッグ用？)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;rebult-platform.sh&lt;/code&gt; : JeVois本体で実行できるように、クロスコンパイルしてバイナリを生成する&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;をそれぞれ使用する。&lt;/p&gt;
+&lt;p&gt;クロスコンパイルはたいてい時間がかかるため、まずはホスト環境でデバッグ用に実行するためにビルドを実行する。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ &lt;span class="nb"&gt;cd&lt;/span&gt; hellojevois/
+$ ./rebuild-host.sh
+-- JeVois version &lt;span class="m"&gt;1&lt;/span&gt;.14.0
+-- JEVOIS_PLATFORM: OFF
+-- JEVOIS_VENDOR: Tutorial
+&lt;span class="o"&gt;[&lt;/span&gt;以下略&lt;span class="o"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;実行すると、CMakeが動いてコンパイルが完了する。コンパイルが完了すると、ビルドされたsoファイルが&lt;strong&gt;/jevois/modules/Tutorial/HelloJeVois/&lt;/strong&gt;に自動的に配置される。どうやらホストマシンで実行するビルド済みモジュールは。&lt;strong&gt;/jevois/modules&lt;/strong&gt;ディレクトリにすべてまとめて配置されるようだ。&lt;/p&gt;
+&lt;p&gt;ちなみにCMakeで生成されたmakeファイルは&lt;code&gt;hbuild&lt;/code&gt;という新しくできたディレクトリ以下に作成されているため、再度コンパイルする場合は以下のようにコマンドを実行する。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ &lt;span class="nb"&gt;cd&lt;/span&gt; hbuild
+$ make
+$ sudo make install
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;make installで、再度&lt;strong&gt;/jevois/modules/Tutorial/HelloJeVois/&lt;/strong&gt;にビルド済みファイルが展開される。&lt;/p&gt;
+&lt;h3&gt;4.2. ホストマシンのWebカメラでHelloJeVoisモジュールの実行&lt;/h3&gt;
+&lt;p&gt;カメラの読み取り解像度や、出力解像度などの&lt;em&gt;ビデオマッピング&lt;/em&gt;情報は、&lt;strong&gt;/jevois/config/videomappings.cfg&lt;/strong&gt;に記載する必要がある。コンフィグファイルを参考に、マッピング情報の列を追加した。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="na"&gt;$ echo &amp;quot;YUYV 640 480 28.5 YUYV 640 480 28.5 Tutorial HelloJeVois&amp;quot; | sudo tee -a /jevois/config/videomappings.cfg&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;videomappings.cfgの末尾に設定が追加された。ちなみに設定のフォーマットと各パラメータは以下のようになる。&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&amp;lt;USBmode&gt; &amp;lt;USBwidth&gt; &amp;lt;USBheight&gt; &amp;lt;USBfps&gt; &amp;lt;CAMmode&gt; &amp;lt;CAMwidth&gt; &amp;lt;CAMheight&gt; &amp;lt;CAMfps&gt; &amp;lt;Vendor&gt; &amp;lt;Module&gt; [*]&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;USB_ : JeVoisで処理した画像をUSBシリアル経由で送信する際の設定&lt;/li&gt;
+&lt;li&gt;CAM_ : JeVoisやWebカメラで読み込む画像の設定&lt;/li&gt;
+&lt;li&gt;mode : YUYVやRGB565など、画像のピクセルフォーマット。USBのみMotionJpeg(MJPG)などが設定できる。&lt;/li&gt;
+&lt;li&gt;width, height : 画像の縦横ピクセル数&lt;/li&gt;
+&lt;li&gt;fpg : 処理最大速度 [/s]。画像サイズが小さい場合は60fpsくらいまで設定できるが、1280x1280など大きいピクセルの場合は15fpsくらいまでしか設定できない。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;補足で、JeVoisのバージョンが1.14.0以上の場合は&lt;code&gt;jevois-add-videomapping&lt;/code&gt;から設定を追加することが出来る&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo jevois-add-videomapping YUYV &lt;span class="m"&gt;640&lt;/span&gt; &lt;span class="m"&gt;480&lt;/span&gt; &lt;span class="m"&gt;28&lt;/span&gt;.5 YUYV &lt;span class="m"&gt;640&lt;/span&gt; &lt;span class="m"&gt;480&lt;/span&gt; &lt;span class="m"&gt;28&lt;/span&gt;.5 Tutorial HelloJeVois
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;少し冗長な話になったが、追加したモジュールを実行してみる。実行にはjevois-daemonを使用。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ jevois-daemon
+&amp;gt; listmappings
+...
+    &lt;span class="m"&gt;22&lt;/span&gt; - OUT : YUYV 640x480 @ &lt;span class="m"&gt;28&lt;/span&gt;.5fps CAM: YUYV 640x480 @ &lt;span class="m"&gt;28&lt;/span&gt;.5fps MOD: Tutorial:HelloJeVois 
+...
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;listmappingコマンドを実行すると、先ほど設定したマッピング情報が表示され、先頭にIDのような数値が付記されている。このIDを使用して、再度jevois-daemonをキーワード引数付きで実行する。また、UbuntuにはWebカメラとJeVoisがカメラとして認識されているため、Webカメラのデバイスファイルを指定する必要がある。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;gt; quit
+Quit &lt;span class="nb"&gt;command&lt;/span&gt; received - bye-bye!
+
+$ v4l2-ctl --list-devices
+VirtualBox Webcam - HD Webcam &lt;span class="o"&gt;(&lt;/span&gt;usb-0000:00:06.0-3&lt;span class="o"&gt;)&lt;/span&gt;
+        /dev/video0
+        /dev/video1
+JeVois-A33 Smart Camera: JeVois &lt;span class="o"&gt;(&lt;/span&gt;usb-0000:00:0b.0-1&lt;span class="o"&gt;)&lt;/span&gt;
+        /dev/video2
+        /dev/video3
+
+$ jevois-daemon --videomapping&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;22&lt;/span&gt; --cameradev&lt;span class="o"&gt;=&lt;/span&gt;/dev/video0
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;v4l2-ctl&lt;/code&gt;コマンドでカメラのデバイスファイルを確認すると、Webカメラは&lt;code&gt;/dev/video0&lt;/code&gt;がデバイスファイルであることが分かった。デバイスファイルを指定して実行すると、何も表示されないのでwebカメラのピクセルフォーマットを調べてみた&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ v4l2-ctl -f video4linux2 -d /dev/video0 --list-formats
+ioctl: VIDIOC_ENUM_FMT
+        Index       : &lt;span class="m"&gt;0&lt;/span&gt;
+        Type        : Video Capture
+        Pixel Format: &lt;span class="s1"&gt;&amp;#39;MJPG&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;compressed&lt;span class="o"&gt;)&lt;/span&gt;
+        Name        : Motion-JPEG
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;どうやら自分のホストマシンに搭載されているWebカメラでは、YUYVに対応していないみたいだ。ビデオマッピングでカメラのピクセルフォーマットにMotion-JPEGを設定できないので、別のWebカメラをつないで実行してみると... [後日追記]&lt;/p&gt;
+&lt;h3&gt;4.3. JeVoisでHelloJeVoisモジュールを実行する&lt;/h3&gt;
+&lt;p&gt;ホストマシンの代わりに、JeVois本体にHelloJeVoisモジュールをクロスコンパイルでビルドする。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ ./rebuild-platform.sh
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;ビルドが完了すると、&lt;code&gt;`pbuild&lt;/code&gt;と&lt;code&gt;jvpkg&lt;/code&gt;というディレクトリが作成される。モジュールを修正して再度ビルドしたい場合は、&lt;code&gt;pbuild&lt;/code&gt;ディレクトリに入ってmakeコマンドを実行すると、コンパイルされたファイルが&lt;code&gt;jvpkg&lt;/code&gt;に作成される。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ &lt;span class="nb"&gt;cd&lt;/span&gt; pbuild
+$ make
+$ make install
+&lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="m"&gt;33&lt;/span&gt;%&lt;span class="o"&gt;]&lt;/span&gt; Generating ../src/Modules/HelloJeVois/modinfo.yaml, ../src/Modules/HelloJeVois/modinfo.html
+&lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="m"&gt;33&lt;/span&gt;%&lt;span class="o"&gt;]&lt;/span&gt; Built target modinfo_HelloJeVois
+&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;100&lt;/span&gt;%&lt;span class="o"&gt;]&lt;/span&gt; Built target HelloJeVois
+Install the project...
+-- Install configuration: &lt;span class="s2"&gt;&amp;quot;&amp;quot;&lt;/span&gt;
+Cannot access /dev/ttyACM0 -- is JeVois plugged in? -- ABORT
+...
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;make installで、jvpkgディレクトリにビルドされたパッケージが作成され、USB経由でJeVoisのSDカードにコピーされる。しかし、&lt;code&gt;/dev/ttyACM0&lt;/code&gt;にアクセスできないとエラーが表示された。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ dmesg &lt;span class="p"&gt;|&lt;/span&gt; grep ttyACM0
+&lt;span class="o"&gt;[&lt;/span&gt; &lt;span class="m"&gt;4339&lt;/span&gt;.396412&lt;span class="o"&gt;]&lt;/span&gt; cdc_acm &lt;span class="m"&gt;1&lt;/span&gt;-1:1.2: ttyACM0: USB ACM device
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;どうやらデバイスファイルへのアクセス権限がないようなので、下記を参考にパーミッションを調整する。&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://jevois.org/doc/USBserialLinux.html"&gt;Connecting to JeVois using serial-over-USB: Linux host&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;まずは、Ubuntuではデフォルトで、modelmanagerがJeVoisに立ち上がる前からメッセージを送りまくっているため、modemmanagerを削除する。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo apt purge modemmanage
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;次に、自身のユーザーを&lt;code&gt;dialout&lt;/code&gt;グループに追加する。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo usermod -aG dialout &lt;span class="nv"&gt;$USER&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;</content><category term="AI, 画像処理"></category><category term="エッジコンピューティング"></category><category term="画像処理"></category><category term="JeVois"></category></entry></feed>
