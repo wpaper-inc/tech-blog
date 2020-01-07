@@ -33,7 +33,7 @@ DEFAULT_PAGINATION = 10
 
 RELATIVE_URLS = True
 PATH = 'content'
-STATIC_PATHS  = ['site_images']
+STATIC_PATHS  = ['site_images', 'images']
 
 THEME = "themes/pelican-clean-blog"
 GOOGLE_ANALYTICS = "UA-122761088-2"
