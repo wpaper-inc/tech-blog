@@ -31,4 +31,12 @@ DEFAULT_PAGINATION = 10
 # Uncomment following line if you want document-relative URLs when developing
 #RELATIVE_URLS = True
 
+RELATIVE_URLS = True
+PATH = 'content'
+STATIC_PATHS  = ['site_images']
+
 THEME = "themes/pelican-clean-blog"
+GOOGLE_ANALYTICS = "UA-122761088-2"
+HEADER_COLOR = 'white'
+HEADER_COVER = 'site_images/osaka-castle.jpg'
+FAVICON = 'site_images/favicon.png'
