@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*- #
 from __future__ import unicode_literals
 
-AUTHOR = 'Kousuke Takeuchi'
+AUTHOR = 'Whitepaper Inc.'
 SITENAME = 'Whitepaper Tech Blog'
 SITEURL = '.'
 
@@ -31,4 +31,4 @@ DEFAULT_PAGINATION = 10
 # Uncomment following line if you want document-relative URLs when developing
 #RELATIVE_URLS = True
 
-THEME = "themes/monospace"
+THEME = "themes/pelican-clean-blog"
