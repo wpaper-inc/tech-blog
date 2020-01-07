@@ -33,10 +33,11 @@ DEFAULT_PAGINATION = 10
 
 RELATIVE_URLS = True
 PATH = 'content'
-STATIC_PATHS  = ['site_images', 'images']
+STATIC_PATHS  = ['site_images', 'images', 'extra/CNAME', 'extra/favicon.ico']
+EXTRA_PATH_METADATA = {'extra/CNAME': {'path': 'CNAME'}, 'extra/favicon.ico': {'path': 'favicon.ico'},}
 
 THEME = "themes/pelican-clean-blog"
 GOOGLE_ANALYTICS = "UA-122761088-2"
 HEADER_COLOR = 'white'
 HEADER_COVER = 'site_images/osaka-castle.jpg'
-FAVICON = 'site_images/favicon.png'
+FAVICON = 'favicon.ico'
