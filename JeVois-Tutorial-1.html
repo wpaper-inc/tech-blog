@@ -51,7 +51,7 @@
 	<meta property="article:published_time" content="2020-01-06 00:00:00+09:00">
             <meta property="og:description" content="jevoisのC++開発環境を作成するために行ったことのメモ。もともとJeVoisで顔の特徴量を分析し、USBシリアル経由でホストマシンに送信するために、チュートリアルを読み漁っていたら、JeVoisに関する日本語のまとまった記事がなかったため、細かくメモを取ることにした。...">
 
-                <meta property="og:image" content="./images/JeVois_tg2e9bgo.jpg">
+                <meta property="og:image" content="./images/20200106_JeVois_tg2e9bgo.jpg">
     <link rel="icon" href="/favicon.ico">
 </head>
 
@@ -83,7 +83,7 @@
     </nav>
 
     <!-- Page Header -->
-        <header class="intro-header" style="background-image: url('./images/jevois-header.jpg')">
+        <header class="intro-header" style="background-image: url('./images/20200106_jevois-header.jpg')">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
@@ -109,12 +109,13 @@
         <p>jevoisのC++開発環境を作成するために行ったことのメモ</p>
 <p>もともとJeVoisで顔の特徴量を分析し、USBシリアル経由でホストマシンに送信するために、チュートリアルを読み漁っていたら、JeVoisに関する日本語のまとまった記事がなかったため、細かくメモを取ることにした。</p>
 <p>Jevoisのプログラミングチュートリアルは<a href="http://jevois.org/tutorials/ProgrammerTutorials.html">こちら</a>に掲載されており、<a href="http://jevois.org/tutorials/ProgrammerVbox.html">Using the pre-installed jevois-sdk VirtualBox for development</a>にC++開発環境の構築手順が載っていた。ただしすでに環境をビルド済みのVirtualboxコンテナの配布とインストール方法だけしか説明されておらず、中に何がインストールされているか分からないのは気持ちが悪いので、マニュアルで環境構築を行った。</p>
-<p>マニュアルで環境を構築するために、<a href="http://jevois.org/tutorials/ProgrammerSetup.html">こちらのページ</a>を参考にした。</p>
+<p>マニュアルで環境を構築するために、<a href="https://jevois.usc.edu/">こちらのページ</a>を参考にした。</p>
+<p>http://jevois.org/doc/Virtualbox.html</p>
 <h2>1. VirtualboxでUbuntuの立ち上げ</h2>
 <p>使用したバージョンは以下の通り</p>
 <ul>
 <li>Windows 10 Pro (1909)</li>
-<li>Virtualbox 6.0.14</li>
+<li>Virtualbox 6.1.0</li>
 <li><a href="https://www.ubuntulinux.jp/News/ubuntu1804-ja-remix">Ubuntu 18.04 (bionic) Japanese Remix</a></li>
 </ul>
 <p>Virtualboxの仮想環境設定</p>
@@ -405,7 +406,8 @@ INF READY JEVOIS <span class="m">1</span>.14.0
 </pre></div>
 
 
-<p>今度はカメラのピクセルフォーマットがYUYVに変更できた。</p>
+<p>今度はカメラのピクセルフォーマットがYUYVに変更できた。再度<code>jevois-daemon</code>を立ち上げると、今度は無事カメラウィンドウが立ち上がって、「Hello JeVois」と文字の描画処理がされた動画が表示された。</p>
+<p><img alt="20200106_screenshot4.png" src="images/20200106_screenshot4.png"></p>
 <h3>4.3. JeVoisでHelloJeVoisモジュールを実行する</h3>
 <p>ホストマシンの代わりに、JeVois本体にHelloJeVoisモジュールをクロスコンパイルでビルドする。</p>
 <div class="highlight"><pre><span></span>$ ./rebuild-platform.sh
@@ -442,6 +444,60 @@ Cannot access /dev/ttyACM0 -- is JeVois plugged in? -- ABORT
 <p>次に、自身のユーザーを<code>dialout</code>グループに追加する。</p>
 <div class="highlight"><pre><span></span>$ sudo usermod -aG dialout <span class="nv">$USER</span>
 </pre></div>
+
+
+<p>続けてpbuildディレクトリで下記のコマンドを実行すると、jvpkgにあるビルド済みファイルをJeVoisのSDカードにコピーしてくれる。</p>
+<div class="highlight"><pre><span></span>$ <span class="nb">cd</span> pbuild
+$ make jvpkg
+</pre></div>
+
+
+<p>また、rebuild-platform.shをmicrosdオプション付きで実行すると、クロスコンパイルとJeVoisのSDカードにコピーするタスクをまとめてやってくれるらしい。</p>
+<div class="highlight"><pre><span></span>$ ./rebuild-platform.sh --microsd
+</pre></div>
+
+
+<p>公式ドキュメントには、ビルドした際に.jvpkgファイルが出来るので、それを/media/&lt;username>/JEVOIS/packagesディレクトリにコピーしろと書いてあるが、そもそも/media/&lt;username>/JEVOIS以下にpackageディレクトリが存在していない。</p>
+<div class="highlight"><pre><span></span>$ ls /media/ktakeuchi/JEVOIS
+modules  share
+</pre></div>
+
+
+<p>そこで、自分でpackageディレクトリを作成し、その後.jvpkgファイルをコピーした。</p>
+<div class="highlight"><pre><span></span>$ sudo mkdir -p /media/ktakeuchi/JEVOIS/packages
+$ tree -L <span class="m">1</span>
+.
+├── --help
+├── CMakeLists.txt
+├── COPYING
+├── INSTALL
+├── README
+├── Tutorial_hellojevois.jvpkg <span class="c1"># .jvpkgファイルが出来ている</span>
+├── hbuild
+├── <span class="nb">help</span>
+├── jvpkg
+├── pbuild
+├── rebuild-host.sh
+├── rebuild-platform.sh
+├── share
+└── src
+$ sudo cp Tutorial_hellojevois.pkg /media/ktakeuchi/JEVOIS/packages
+</pre></div>
+
+
+<p>その後、<code>jevois-usbsd</code>コマンドでSDカードをUSB経由でマウントし、同じコマンドでアンマウントしたら、JeVois本体が自動的に再起動されて、自作のモジュールが起動するようになるらしい。</p>
+<div class="highlight"><pre><span></span>$ jevois-usbsd start
+$ jevois-usbsd stop
+</pre></div>
+
+
+<p>再起動後、数秒待ってからguvcviewを立ち上げ、USB経由で送られてくる動画像を確認した</p>
+<div class="highlight"><pre><span></span>$ guvcview -d /dev/video2
+</pre></div>
+
+
+<p>その結果、見事JeVois本体でプログラムが動いていることが確認できました！</p>
+<p><img alt="20200106_screenshot5.png" src="images/20200106_screenshot5.png"></p>
     </article>
 
         <div class="tags">

@@ -2,12 +2,13 @@
 <feed xmlns="http://www.w3.org/2005/Atom"><title>Whitepaper Tech Blog</title><link href="https://tech.wpaper-inc.com/" rel="alternate"></link><link href="https://tech.wpaper-inc.com/feeds/all.atom.xml" rel="self"></link><id>https://tech.wpaper-inc.com/</id><updated>2020-01-06T00:00:00+09:00</updated><entry><title>JeVois Tutorial(1) Ubuntu18.04でJeVois開発環境作成と、サンプルコードをコマンドラインから実行</title><link href="https://tech.wpaper-inc.com/JeVois-Tutorial-1.html" rel="alternate"></link><published>2020-01-06T00:00:00+09:00</published><updated>2020-01-06T00:00:00+09:00</updated><author><name>Kousuke Takeuchi</name></author><id>tag:tech.wpaper-inc.com,2020-01-06:/JeVois-Tutorial-1.html</id><summary type="html">&lt;p&gt;jevoisのC++開発環境を作成するために行ったことのメモ。もともとJeVoisで顔の特徴量を分析し、USBシリアル経由でホストマシンに送信するために、チュートリアルを読み漁っていたら、JeVoisに関する日本語のまとまった記事がなかったため、細かくメモを取ることにした。JevoisのプログラミングチュートリアルはこちらにC++開発環境の構築手順が載っていた。ただしすでに環境をビルド済みのVirtualboxコンテナの配布とインストール方法だけしか説明されておらず、中に何がインストールされているか分からないのは気持ちが悪いので、マニュアルで環境構築を行った。&lt;/p&gt;</summary><content type="html">&lt;p&gt;jevoisのC++開発環境を作成するために行ったことのメモ&lt;/p&gt;
 &lt;p&gt;もともとJeVoisで顔の特徴量を分析し、USBシリアル経由でホストマシンに送信するために、チュートリアルを読み漁っていたら、JeVoisに関する日本語のまとまった記事がなかったため、細かくメモを取ることにした。&lt;/p&gt;
 &lt;p&gt;Jevoisのプログラミングチュートリアルは&lt;a href="http://jevois.org/tutorials/ProgrammerTutorials.html"&gt;こちら&lt;/a&gt;に掲載されており、&lt;a href="http://jevois.org/tutorials/ProgrammerVbox.html"&gt;Using the pre-installed jevois-sdk VirtualBox for development&lt;/a&gt;にC++開発環境の構築手順が載っていた。ただしすでに環境をビルド済みのVirtualboxコンテナの配布とインストール方法だけしか説明されておらず、中に何がインストールされているか分からないのは気持ちが悪いので、マニュアルで環境構築を行った。&lt;/p&gt;
-&lt;p&gt;マニュアルで環境を構築するために、&lt;a href="http://jevois.org/tutorials/ProgrammerSetup.html"&gt;こちらのページ&lt;/a&gt;を参考にした。&lt;/p&gt;
+&lt;p&gt;マニュアルで環境を構築するために、&lt;a href="https://jevois.usc.edu/"&gt;こちらのページ&lt;/a&gt;を参考にした。&lt;/p&gt;
+&lt;p&gt;http://jevois.org/doc/Virtualbox.html&lt;/p&gt;
 &lt;h2&gt;1. VirtualboxでUbuntuの立ち上げ&lt;/h2&gt;
 &lt;p&gt;使用したバージョンは以下の通り&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Windows 10 Pro (1909)&lt;/li&gt;
-&lt;li&gt;Virtualbox 6.0.14&lt;/li&gt;
+&lt;li&gt;Virtualbox 6.1.0&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://www.ubuntulinux.jp/News/ubuntu1804-ja-remix"&gt;Ubuntu 18.04 (bionic) Japanese Remix&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;Virtualboxの仮想環境設定&lt;/p&gt;
@@ -298,7 +299,8 @@ INF READY JEVOIS &lt;span class="m"&gt;1&lt;/span&gt;.14.0
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;今度はカメラのピクセルフォーマットがYUYVに変更できた。&lt;/p&gt;
+&lt;p&gt;今度はカメラのピクセルフォーマットがYUYVに変更できた。再度&lt;code&gt;jevois-daemon&lt;/code&gt;を立ち上げると、今度は無事カメラウィンドウが立ち上がって、「Hello JeVois」と文字の描画処理がされた動画が表示された。&lt;/p&gt;
+&lt;p&gt;&lt;img alt="20200106_screenshot4.png" src="images/20200106_screenshot4.png"&gt;&lt;/p&gt;
 &lt;h3&gt;4.3. JeVoisでHelloJeVoisモジュールを実行する&lt;/h3&gt;
 &lt;p&gt;ホストマシンの代わりに、JeVois本体にHelloJeVoisモジュールをクロスコンパイルでビルドする。&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ ./rebuild-platform.sh
@@ -334,4 +336,58 @@ Cannot access /dev/ttyACM0 -- is JeVois plugged in? -- ABORT
 
 &lt;p&gt;次に、自身のユーザーを&lt;code&gt;dialout&lt;/code&gt;グループに追加する。&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo usermod -aG dialout &lt;span class="nv"&gt;$USER&lt;/span&gt;
-&lt;/pre&gt;&lt;/div&gt;</content><category term="AI, 画像処理"></category><category term="エッジコンピューティング"></category><category term="画像処理"></category><category term="JeVois"></category></entry></feed>
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;続けてpbuildディレクトリで下記のコマンドを実行すると、jvpkgにあるビルド済みファイルをJeVoisのSDカードにコピーしてくれる。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ &lt;span class="nb"&gt;cd&lt;/span&gt; pbuild
+$ make jvpkg
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;また、rebuild-platform.shをmicrosdオプション付きで実行すると、クロスコンパイルとJeVoisのSDカードにコピーするタスクをまとめてやってくれるらしい。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ ./rebuild-platform.sh --microsd
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;公式ドキュメントには、ビルドした際に.jvpkgファイルが出来るので、それを/media/&amp;lt;username&gt;/JEVOIS/packagesディレクトリにコピーしろと書いてあるが、そもそも/media/&amp;lt;username&gt;/JEVOIS以下にpackageディレクトリが存在していない。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ ls /media/ktakeuchi/JEVOIS
+modules  share
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;そこで、自分でpackageディレクトリを作成し、その後.jvpkgファイルをコピーした。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo mkdir -p /media/ktakeuchi/JEVOIS/packages
+$ tree -L &lt;span class="m"&gt;1&lt;/span&gt;
+.
+├── --help
+├── CMakeLists.txt
+├── COPYING
+├── INSTALL
+├── README
+├── Tutorial_hellojevois.jvpkg &lt;span class="c1"&gt;# .jvpkgファイルが出来ている&lt;/span&gt;
+├── hbuild
+├── &lt;span class="nb"&gt;help&lt;/span&gt;
+├── jvpkg
+├── pbuild
+├── rebuild-host.sh
+├── rebuild-platform.sh
+├── share
+└── src
+$ sudo cp Tutorial_hellojevois.pkg /media/ktakeuchi/JEVOIS/packages
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;その後、&lt;code&gt;jevois-usbsd&lt;/code&gt;コマンドでSDカードをUSB経由でマウントし、同じコマンドでアンマウントしたら、JeVois本体が自動的に再起動されて、自作のモジュールが起動するようになるらしい。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ jevois-usbsd start
+$ jevois-usbsd stop
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;再起動後、数秒待ってからguvcviewを立ち上げ、USB経由で送られてくる動画像を確認した&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ guvcview -d /dev/video2
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;その結果、見事JeVois本体でプログラムが動いていることが確認できました！&lt;/p&gt;
+&lt;p&gt;&lt;img alt="20200106_screenshot5.png" src="images/20200106_screenshot5.png"&gt;&lt;/p&gt;</content><category term="AI, 画像処理"></category><category term="エッジコンピューティング"></category><category term="画像処理"></category><category term="JeVois"></category></entry></feed>
