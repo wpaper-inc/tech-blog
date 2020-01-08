@@ -36,7 +36,7 @@ PATH = 'content'
 STATIC_PATHS  = ['site_images', 'images', 'extra/CNAME', 'extra/favicon.ico']
 EXTRA_PATH_METADATA = {'extra/CNAME': {'path': 'CNAME'}, 'extra/favicon.ico': {'path': 'favicon.ico'},}
 
-THEME = "themes/pelican-clean-blog"
+THEME = "theme/pelican-clean-blog"
 GOOGLE_ANALYTICS = "UA-122761088-2"
 HEADER_COLOR = 'white'
 HEADER_COVER = 'site_images/osaka-castle.jpg'
