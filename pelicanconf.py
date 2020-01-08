@@ -41,3 +41,6 @@ GOOGLE_ANALYTICS = "UA-122761088-2"
 HEADER_COLOR = 'white'
 HEADER_COVER = 'site_images/osaka-castle.jpg'
 FAVICON = 'favicon.ico'
+
+PLUGIN_PATHS = ['./plugins']
+PLUGINS = ['render_math']
