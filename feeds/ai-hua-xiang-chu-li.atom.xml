@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Whitepaper Tech Blog - AI, 画像処理</title><link href="https://tech.wpaper-inc.com/" rel="alternate"></link><link href="https://tech.wpaper-inc.com/feeds/ai-hua-xiang-chu-li.atom.xml" rel="self"></link><id>https://tech.wpaper-inc.com/</id><updated>2020-01-06T00:00:00+09:00</updated><entry><title>[JeVois Tutorial 1] Ubuntu18.04でJeVois開発環境作成と、サンプルコードをコマンドラインから実行</title><link href="https://tech.wpaper-inc.com/JeVois-Tutorial-1.html" rel="alternate"></link><published>2020-01-06T00:00:00+09:00</published><updated>2020-01-06T00:00:00+09:00</updated><author><name>Kousuke Takeuchi</name></author><id>tag:tech.wpaper-inc.com,2020-01-06:/JeVois-Tutorial-1.html</id><summary type="html">&lt;p&gt;jevoisのC++開発環境を作成するために行ったことのメモ。もともとJeVoisで顔の特徴量を分析し、USBシリアル経由でホストマシンに送信するために、チュートリアルを読み漁っていたら、JeVoisに関する日本語のまとまった記事がなかったため、細かくメモを取ることにした。JevoisのプログラミングチュートリアルはこちらにC++開発環境の構築手順が載っていた。ただしすでに環境をビルド済みのVirtualboxコンテナの配布とインストール方法だけしか説明されておらず、中に何がインストールされているか分からないのは気持ちが悪いので、マニュアルで環境構築を行った。&lt;/p&gt;</summary><content type="html">&lt;p&gt;jevoisのC++開発環境を作成するために行ったことのメモ&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Whitepaper Tech Blog - AI, 画像処理</title><link href="https://tech.wpaper-inc.com/" rel="alternate"></link><link href="https://tech.wpaper-inc.com/feeds/ai-hua-xiang-chu-li.atom.xml" rel="self"></link><id>https://tech.wpaper-inc.com/</id><updated>2020-01-06T00:00:00+09:00</updated><entry><title>JeVois Tutorial(1) Ubuntu18.04でJeVois開発環境作成と、サンプルコードをコマンドラインから実行</title><link href="https://tech.wpaper-inc.com/JeVois-Tutorial-1.html" rel="alternate"></link><published>2020-01-06T00:00:00+09:00</published><updated>2020-01-06T00:00:00+09:00</updated><author><name>Kousuke Takeuchi</name></author><id>tag:tech.wpaper-inc.com,2020-01-06:/JeVois-Tutorial-1.html</id><summary type="html">&lt;p&gt;jevoisのC++開発環境を作成するために行ったことのメモ。もともとJeVoisで顔の特徴量を分析し、USBシリアル経由でホストマシンに送信するために、チュートリアルを読み漁っていたら、JeVoisに関する日本語のまとまった記事がなかったため、細かくメモを取ることにした。JevoisのプログラミングチュートリアルはこちらにC++開発環境の構築手順が載っていた。ただしすでに環境をビルド済みのVirtualboxコンテナの配布とインストール方法だけしか説明されておらず、中に何がインストールされているか分からないのは気持ちが悪いので、マニュアルで環境構築を行った。&lt;/p&gt;</summary><content type="html">&lt;p&gt;jevoisのC++開発環境を作成するために行ったことのメモ&lt;/p&gt;
 &lt;p&gt;もともとJeVoisで顔の特徴量を分析し、USBシリアル経由でホストマシンに送信するために、チュートリアルを読み漁っていたら、JeVoisに関する日本語のまとまった記事がなかったため、細かくメモを取ることにした。&lt;/p&gt;
 &lt;p&gt;Jevoisのプログラミングチュートリアルは&lt;a href="http://jevois.org/tutorials/ProgrammerTutorials.html"&gt;こちら&lt;/a&gt;に掲載されており、&lt;a href="http://jevois.org/tutorials/ProgrammerVbox.html"&gt;Using the pre-installed jevois-sdk VirtualBox for development&lt;/a&gt;にC++開発環境の構築手順が載っていた。ただしすでに環境をビルド済みのVirtualboxコンテナの配布とインストール方法だけしか説明されておらず、中に何がインストールされているか分からないのは気持ちが悪いので、マニュアルで環境構築を行った。&lt;/p&gt;
 &lt;p&gt;マニュアルで環境を構築するために、&lt;a href="http://jevois.org/tutorials/ProgrammerSetup.html"&gt;こちらのページ&lt;/a&gt;を参考にした。&lt;/p&gt;
@@ -87,6 +87,8 @@ $ sudo apt upgrade
 &lt;p&gt;本章冒頭で解説したパッケージが一通りインストールされた。&lt;code&gt;INSTALL&lt;/code&gt;には、132行目まで他のパターンでのインストール内容(Webカメラだけで開発したい場合など)が記載されているが、どれも上のパッケージリストの内包なので、特に確認は不要だと判断した。&lt;/p&gt;
 &lt;h2&gt;3. jevois-daemon&lt;/h2&gt;
 &lt;p&gt;インストールが完了したら、JeVois本体をホストマシンにUSB接続し、Virtualboxの「デバイス &amp;gt; USB &amp;gt; JeVois Inc. JeVois-A33 Smart Camera [0100]」を選択し、ホストからUbuntu仮想環境にマッピングしておく。また、Webカメラも仮想環境にマッピングする「デバイス &amp;gt; Webカメラ &amp;gt; HD Webcam」。&lt;/p&gt;
+&lt;p&gt;&lt;img alt="20200106_screenshot1.png" src="images/20200106_screenshot2.png"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="20200106_screenshot1.png" src="images/20200106_screenshot3.png"&gt;&lt;/p&gt;
 &lt;p&gt;そのあと、jevois-hostとjevoisbase-hostに含まれる&lt;code&gt;jevois-daemon&lt;/code&gt;を実行する。&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ jevois-daemon
 &lt;/pre&gt;&lt;/div&gt;
@@ -217,22 +219,86 @@ VirtualBox Webcam - HD Webcam &lt;span class="o"&gt;(&lt;/span&gt;usb-0000:00:06
 JeVois-A33 Smart Camera: JeVois &lt;span class="o"&gt;(&lt;/span&gt;usb-0000:00:0b.0-1&lt;span class="o"&gt;)&lt;/span&gt;
         /dev/video2
         /dev/video3
-
-$ jevois-daemon --videomapping&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;22&lt;/span&gt; --cameradev&lt;span class="o"&gt;=&lt;/span&gt;/dev/video0
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;&lt;code&gt;v4l2-ctl&lt;/code&gt;コマンドでカメラのデバイスファイルを確認すると、Webカメラは&lt;code&gt;/dev/video0&lt;/code&gt;がデバイスファイルであることが分かった。デバイスファイルを指定して実行すると、何も表示されないのでwebカメラのピクセルフォーマットを調べてみた&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;v4l2-ctl&lt;/code&gt;コマンドでカメラのデバイスファイルを確認すると、Webカメラは&lt;code&gt;/dev/video0&lt;/code&gt;がデバイスファイルであることが分かった。jevois-daemonコマンドにデバイスファイルを指定して実行してみる。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ jevois-daemon --videomapping&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;22&lt;/span&gt; --cameradev&lt;span class="o"&gt;=&lt;/span&gt;/dev/video0
+INF Engine::onParamChange: Using &lt;span class="o"&gt;[&lt;/span&gt;stdio&lt;span class="o"&gt;]&lt;/span&gt; hardware &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;4&lt;/span&gt;-pin connector&lt;span class="o"&gt;)&lt;/span&gt; serial port
+INF Engine::onParamChange: No USB serial port used
+ERR VideoMapping::videoMappingsFromStream: In file /jevois/config/videomappings.cfg:106: Camera video format not supported by sensor -- SKIPPING.
+...
+INF Engine::postInit: Loaded &lt;span class="m"&gt;61&lt;/span&gt; vision processing modes.
+INF Engine::postInit: Initalizing Python...
+INF Engine::postInit: Starting camera device /dev/video4
+INF Camera::Camera: &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;3&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; V4L2 camera /dev/video4 card VirtualBox Webcam - HD Webcam:  bus usb-0000:00:06.0-2
+INF Engine::postInit: Using display &lt;span class="k"&gt;for&lt;/span&gt; video output
+INF Engine::setFormatInternal: OUT: YUYV 640x480 @ &lt;span class="m"&gt;28&lt;/span&gt;.5fps CAM: YUYV 640x480 @ &lt;span class="m"&gt;28&lt;/span&gt;.5fps MOD: Tutorial:HelloJeVois C++
+
+&lt;span class="c1"&gt;# ↓カメラのピクセルフォーマットがMJPGに設定されている&lt;/span&gt;
+INF Camera::setFormat: Camera &lt;span class="nb"&gt;set&lt;/span&gt; video format to 640x480 MJPG
+FTL Camera::setFormat: Camera did not accept the requested video format as specified
+ERR Log::warnAndIgnoreException: Caught std::exception &lt;span class="o"&gt;[&lt;/span&gt;FTL Camera::setFormat: Camera did not accept the requested video format as specified&lt;span class="o"&gt;]&lt;/span&gt;
+INF Camera::streamOn: &lt;span class="m"&gt;5&lt;/span&gt; buffers of &lt;span class="m"&gt;1228800&lt;/span&gt; bytes allocated
+INF READY JEVOIS &lt;span class="m"&gt;1&lt;/span&gt;.14.0
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;実行していくら待っても何も表示されないのでログを確認してみると、カメラのピクセルフォーマットにMJPGを設定したと出ている。再度&lt;code&gt;v4l2-ctl&lt;/code&gt;コマンドでwebカメラのピクセルフォーマットを調べてみた。&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ v4l2-ctl -f video4linux2 -d /dev/video0 --list-formats
 ioctl: VIDIOC_ENUM_FMT
-        Index       : &lt;span class="m"&gt;0&lt;/span&gt;
-        Type        : Video Capture
-        Pixel Format: &lt;span class="s1"&gt;&amp;#39;MJPG&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;compressed&lt;span class="o"&gt;)&lt;/span&gt;
-        Name        : Motion-JPEG
+    Index       : &lt;span class="m"&gt;0&lt;/span&gt;
+    Type        : Video Capture
+    Pixel Format: &lt;span class="s1"&gt;&amp;#39;MJPG&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;compressed&lt;span class="o"&gt;)&lt;/span&gt;
+    Name        : Motion-JPEG
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;どうやら自分のホストマシンに搭載されているWebカメラでは、YUYVに対応していないみたいだ。ビデオマッピングでカメラのピクセルフォーマットにMotion-JPEGを設定できないので、別のWebカメラをつないで実行してみると... [後日追記]&lt;/p&gt;
+&lt;p&gt;どうやら自分のホストマシンに搭載されているWebカメラでは、YUYVに対応していないみたいだ。ビデオマッピングでカメラのピクセルフォーマットにMotion-JPEGを設定できないので、別のWebカメラをつないで実行してみると、YUYVのピクセルフォーマットに対応していた。&lt;/p&gt;
+&lt;p&gt;&lt;img alt="20200106_screenshot1.png" src="images/20200106_screenshot1.png"&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ v4l2-ctl --list-devices
+USB_Camera: USB_Camera &lt;span class="o"&gt;(&lt;/span&gt;usb-0000:00:0b.0-1&lt;span class="o"&gt;)&lt;/span&gt;:
+    /dev/video0
+    /dev/video1
+
+JeVois-A33 Smart Camera: JeVois &lt;span class="o"&gt;(&lt;/span&gt;usb-0000:00:0b.0-2&lt;span class="o"&gt;)&lt;/span&gt;:
+    /dev/video2
+    /dev/video3
+
+$ v4l2-ctl -f video4linux2 -d /dev/video0 --list-formats
+ioctl: VIDIOC_ENUM_FMT
+    Index       : &lt;span class="m"&gt;0&lt;/span&gt;
+    Type        : Video Capture
+    Pixel Format: &lt;span class="s1"&gt;&amp;#39;YUYV&amp;#39;&lt;/span&gt;
+    Name        : YUYV &lt;span class="m"&gt;4&lt;/span&gt;:2:2
+
+    Index       : &lt;span class="m"&gt;1&lt;/span&gt;
+    Type        : Video Capture
+    Pixel Format: &lt;span class="s1"&gt;&amp;#39;MJPG&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;compressed&lt;span class="o"&gt;)&lt;/span&gt;
+    Name        : Motion-JPEG
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;再度jevois-daemonでUSBカメラに変更して実行する。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ jevois-daemon --videomapping&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;22&lt;/span&gt; --cameradev&lt;span class="o"&gt;=&lt;/span&gt;/dev/video0
+...
+INF Engine::postInit: Loaded &lt;span class="m"&gt;61&lt;/span&gt; vision processing modes.
+INF Engine::postInit: Initalizing Python...
+INF Engine::postInit: Starting camera device /dev/video0
+INF Camera::Camera: &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;3&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; V4L2 camera /dev/video0 card USB_Camera: USB_Camera bus usb-0000:00:0b.0-1
+INF Engine::postInit: Using display &lt;span class="k"&gt;for&lt;/span&gt; video output
+INF Engine::setFormatInternal: OUT: YUYV 640x480 @ &lt;span class="m"&gt;28&lt;/span&gt;.5fps CAM: YUYV 640x480 @ &lt;span class="m"&gt;28&lt;/span&gt;.5fps MOD: Tutorial:HelloJeVois C++
+
+&lt;span class="c1"&gt;# ↓YUYVで設定できた&lt;/span&gt;
+INF Camera::setFormat: Camera &lt;span class="nb"&gt;set&lt;/span&gt; video format to 640x480 YUYV
+INF Engine::setFormatInternal: Instantiating dynamic loader &lt;span class="k"&gt;for&lt;/span&gt; /jevois/modules/Tutorial/HelloJeVois/HelloJeVois.so
+INF Engine::setFormatInternal: Module &lt;span class="o"&gt;[&lt;/span&gt;HelloJeVois&lt;span class="o"&gt;]&lt;/span&gt; loaded, initialized, and ready.
+INF Camera::streamOn: &lt;span class="m"&gt;5&lt;/span&gt; buffers of &lt;span class="m"&gt;614400&lt;/span&gt; bytes allocated
+INF READY JEVOIS &lt;span class="m"&gt;1&lt;/span&gt;.14.0
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;今度はカメラのピクセルフォーマットがYUYVに変更できた。&lt;/p&gt;
 &lt;h3&gt;4.3. JeVoisでHelloJeVoisモジュールを実行する&lt;/h3&gt;
 &lt;p&gt;ホストマシンの代わりに、JeVois本体にHelloJeVoisモジュールをクロスコンパイルでビルドする。&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ ./rebuild-platform.sh
