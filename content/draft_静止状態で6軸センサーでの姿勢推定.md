@@ -1,3 +1,15 @@
+Title: M5Stackシリーズ(4) - 姿勢の補正
+Date: 2020-01-08
+Category: ESP32
+Tags: エッジコンピューティング, M5Stack, ESP32
+Slug: M5Stack-Series-4
+Authors: Kousuke Takeuchi
+Summary: M5Stack Grayを購入しました。本記事のシリーズでは、M5Stackの開発環境構築から、センサーを使った姿勢推定、そしてJeVoisでの顔検知と連携したサーボの制御まで解説していこうと思います。
+Header_Cover: images/m5-header.jpg
+Og_Image: images/m5-header.jpg
+Twitter_Image: images/m5-header.jpg
+Status: draft
+
 [ジャイロのドリフト補正と比較（カルマン、相補フィルター）](https://garchiving.com/gyro-drift-correction/)
 
 6軸センサーにはジャイロセンサーが搭載されていますが、ノイズや温度変化によって誤差が生じてしまいます(ドリフト現象)。ドリフトの誤差が蓄積されることで、停止状態でも角度が少しずつ計算上ずれます。
