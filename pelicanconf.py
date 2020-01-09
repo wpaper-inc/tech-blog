@@ -41,6 +41,7 @@ GOOGLE_ANALYTICS = "UA-122761088-2"
 HEADER_COLOR = 'white'
 HEADER_COVER = 'site_images/osaka-castle.jpg'
 FAVICON = 'favicon.ico'
+DISQUS_SITENAME = 'whitepaper-tech-blog'
 
 PLUGIN_PATHS = ['./plugins']
 PLUGINS = ['render_math', 'sitemap']
