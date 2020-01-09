@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 AUTHOR = 'Whitepaper Inc.'
 SITENAME = 'Whitepaper Tech Blog'
-SITEURL = '.'
+SITEURL = 'https://www.wpaper-inc.com'
 
 PATH = 'content'
 
