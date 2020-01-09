@@ -4,84 +4,84 @@ xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitem
 xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
-<loc>./</loc>
-<lastmod>2020-01-09T16:43:10-00:00</lastmod>
+<loc>https://www.wpaper-inc.com/</loc>
+<lastmod>2020-01-09T16:57:12-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>./tags.html</loc>
-<lastmod>2020-01-09T16:43:10-00:00</lastmod>
+<loc>https://www.wpaper-inc.com/tags.html</loc>
+<lastmod>2020-01-09T16:57:12-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>./categories.html</loc>
-<lastmod>2020-01-09T16:43:10-00:00</lastmod>
+<loc>https://www.wpaper-inc.com/categories.html</loc>
+<lastmod>2020-01-09T16:57:12-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>./authors.html</loc>
-<lastmod>2020-01-09T16:43:10-00:00</lastmod>
+<loc>https://www.wpaper-inc.com/authors.html</loc>
+<lastmod>2020-01-09T16:57:12-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>./archives.html</loc>
-<lastmod>2020-01-09T16:43:10-00:00</lastmod>
+<loc>https://www.wpaper-inc.com/archives.html</loc>
+<lastmod>2020-01-09T16:57:12-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>./JeVois-Tutorial-2.html</loc>
+<loc>https://www.wpaper-inc.com/JeVois-Tutorial-2.html</loc>
 <lastmod>2020-01-09T00:00:00+09:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>./JeVois-Tutorial-1.html</loc>
+<loc>https://www.wpaper-inc.com/JeVois-Tutorial-1.html</loc>
 <lastmod>2020-01-06T00:00:00+09:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>./category/ai-hua-xiang-chu-li.html</loc>
+<loc>https://www.wpaper-inc.com/category/ai-hua-xiang-chu-li.html</loc>
 <lastmod>2020-01-09T00:00:00+09:19</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>./tag/etsuzikonpiyuteingu.html</loc>
+<loc>https://www.wpaper-inc.com/tag/etsuzikonpiyuteingu.html</loc>
 <lastmod>2020-01-09T00:00:00+09:19</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>./tag/hua-xiang-chu-li.html</loc>
+<loc>https://www.wpaper-inc.com/tag/hua-xiang-chu-li.html</loc>
 <lastmod>2020-01-09T00:00:00+09:19</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>./tag/jevois.html</loc>
+<loc>https://www.wpaper-inc.com/tag/jevois.html</loc>
 <lastmod>2020-01-09T00:00:00+09:19</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>./author/kousuke-takeuchi.html</loc>
+<loc>https://www.wpaper-inc.com/author/kousuke-takeuchi.html</loc>
 <lastmod>2020-01-09T00:00:00+09:19</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
