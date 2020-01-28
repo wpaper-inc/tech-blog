@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="japanese">
+
+<head>
+            <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+        <title>M5Stackシリーズ(1) - M5Stack開発環境構築/6軸センサーデータの取得</title>
+
+        <!-- Bootstrap Core CSS -->
+        <link href="./theme/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="./theme/css/clean-blog.min.css" rel="stylesheet">
+
+        <!-- Code highlight color scheme -->
+            <link href="./theme/css/code_blocks/darkly.css" rel="stylesheet">
+
+
+        <!-- Custom Fonts -->
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+
+
+        <meta name="description" content="M5Stack Grayを購入しました。本記事のシリーズでは、M5Stackの開発環境構築から、センサーを使った姿勢推定、そしてJeVoisでの顔検知と連携したサーボの制御まで解説していこうと思います。">
+
+        <meta name="author" content="Kousuke Takeuchi">
+
+        <meta name="tags" content="エッジコンピューティング">
+        <meta name="tags" content="M5Stack">
+        <meta name="tags" content="ESP32">
+
+	                <meta property="og:locale" content="">
+		<meta property="og:site_name" content="Whitepaper Tech Blog">
+
+	<meta property="og:type" content="article">
+            <meta property="article:author" content="./author/kousuke-takeuchi.html">
+	<meta property="og:url" content="./M5Stack-Series-1.html">
+	<meta property="og:title" content="M5Stackシリーズ(1) - M5Stack開発環境構築/6軸センサーデータの取得">
+	<meta property="article:published_time" content="2020-01-28 00:00:00+09:00">
+            <meta property="og:description" content="M5Stack Grayを購入しました。本記事のシリーズでは、M5Stackの開発環境構築から、センサーを使った姿勢推定、そしてJeVoisでの顔検知と連携したサーボの制御まで解説していこうと思います。">
+
+                <meta property="og:image" content="./images/20200128_m5-header.jpg">
+    <link rel="icon" href="/favicon.ico">
+</head>
+
+<body class="article-M5Stack-Series-1">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="./">Whitepaper Tech Blog</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+        <header class="intro-header" style="background-image: url('./images/20200128_m5-header.jpg')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <div class="post-heading">
+                        <h1>M5Stackシリーズ(1) - M5Stack開発環境構築/6軸センサーデータの取得</h1>
+                        <span class="meta">Posted by
+                                <a href="./author/kousuke-takeuchi.html">Kousuke Takeuchi</a>
+                             on 火 28 1月 2020
+                        </span>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+    <!-- Post Content -->
+    <article>
+        <h3>シリーズ</h3>
+<ol>
+<li><a href="M5Stack-Series-1.html">(本記事) M5Stack開発環境構築/6軸センサーデータの取得</a></li>
+<li>回転行列/クオータニオンの基礎</li>
+<li>静止状態でのカルマンフィルター/相補フィルターによるドリフト補正と姿勢推定</li>
+<li>動作状態でのドリフト補正と姿勢推定</li>
+<li>9軸センサーでの姿勢推定</li>
+<li>サーボドライバーシールドとの連携</li>
+<li>JeVoisの顔検知と追跡</li>
+</ol>
+<p><a href="https://www.switch-science.com/catalog/3648/">M5Stack Gray</a>を購入しました。こちらには<strong>MPU-9250 ９軸センサモジュール</strong>が載っていて、通常3軸や6軸センサーでは3軸の角速度や角加速度を取得して初期位置からの移動を検出できます。また、別売りのシールドを搭載することで、サーボやモーターなどの外部デバイスの制御もArduinoと同様に簡単にできる端末となっています。本記事のシリーズでは、M5Stackの開発環境構築から、センサーを使った姿勢推定、そしてJeVoisでの顔検知と連携したサーボの制御まで解説していこうと思います。</p>
+<h2>1. Arduino IDEのセットアップ</h2>
+<p>セットアップ方法はこちらを参考にしました。</p>
+<p><a href="https://docs.m5stack.com/#/en/quick_start/m5core/m5stack_core_get_started_Arduino_Windows">M5Core Quick Start - Arduino Windows</a></p>
+<p>英語の記事ですが、特段難しい箇所はありませんでした。不安な方はこちらなどを参考にしてください</p>
+<p><a href="https://www.google.com/search?q=m5stack+arduino&amp;oq=m5stack+arduino&amp;aqs=chrome..69i57.4730j0j7&amp;sourceid=chrome&amp;ie=UTF-8">初心者向けM5Stackの始め方（ArduinoIDE編）</a></p>
+<p>合わせて、MPU6050からデータを取得するためのライブラリをインストールします</p>
+<p>「スケッチ」＞「ライブラリをインクルード」＞「ライブラリを管理」</p>
+<p><img alt="20200128_screenshot1.png" src="images/20200128_screenshot3.png"></p>
+<p>キーワードにmpu6050と入力すると、MPU6050_tocknという名前のライブラリがあるので、こちらをインストールします</p>
+<p><img alt="20200128_screenshot1.png" src="images/20200128_screenshot4.png"></p>
+<p>以上で初期設定は完了です</p>
+<h2>2. MPU6050から加速度・角加速度を取得する</h2>
+<p>MPU6050からデータを取得し、M5Stackからシリアル経由でデータを送信するプログラムを作成しました。</p>
+<div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;M5Stack.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;MPU6050_tockn.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;Wire.h&gt;</span><span class="cp"></span>
+
+<span class="n">MPU6050</span> <span class="nf">mpu6050</span><span class="p">(</span><span class="n">Wire</span><span class="p">);</span>
+
+<span class="kt">float</span> <span class="n">ax</span><span class="p">,</span> <span class="n">ay</span><span class="p">,</span> <span class="n">az</span><span class="p">;</span>
+<span class="kt">float</span> <span class="n">gx</span><span class="p">,</span> <span class="n">gy</span><span class="p">,</span> <span class="n">gz</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">setup</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">delay</span><span class="p">(</span><span class="mi">500</span><span class="p">);</span>
+  <span class="n">M5</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+
+  <span class="n">Serial</span><span class="p">.</span><span class="n">begin</span><span class="p">(</span><span class="mi">115200</span><span class="p">);</span>
+  <span class="n">Serial</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;ax,ay,az,gx,gy,gz</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+
+  <span class="n">Wire</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+  <span class="n">Wire</span><span class="p">.</span><span class="n">setClock</span><span class="p">(</span><span class="mi">400000UL</span><span class="p">);</span> <span class="c1">// I2C周波数を400kHzに設定</span>
+
+  <span class="n">mpu6050</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span>
+  <span class="n">mpu6050</span><span class="p">.</span><span class="n">calcGyroOffsets</span><span class="p">(</span><span class="nb">false</span><span class="p">);</span>
+
+  <span class="n">M5</span><span class="p">.</span><span class="n">Lcd</span><span class="p">.</span><span class="n">setTextFont</span><span class="p">(</span><span class="mi">2</span><span class="p">);</span>
+  <span class="n">M5</span><span class="p">.</span><span class="n">Lcd</span><span class="p">.</span><span class="n">setTextColor</span><span class="p">(</span><span class="n">TFT_WHITE</span><span class="p">,</span> <span class="n">TFT_BLACK</span><span class="p">);</span>
+  <span class="n">M5</span><span class="p">.</span><span class="n">Lcd</span><span class="p">.</span><span class="n">println</span><span class="p">(</span><span class="s">&quot;M5Stack Balance Mode start&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">loop</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">mpu6050</span><span class="p">.</span><span class="n">update</span><span class="p">();</span>
+
+  <span class="n">ax</span> <span class="o">=</span> <span class="n">mpu6050</span><span class="p">.</span><span class="n">getAccX</span><span class="p">();</span>
+  <span class="n">ay</span> <span class="o">=</span> <span class="n">mpu6050</span><span class="p">.</span><span class="n">getAccY</span><span class="p">();</span>
+  <span class="n">az</span> <span class="o">=</span> <span class="n">mpu6050</span><span class="p">.</span><span class="n">getAccZ</span><span class="p">();</span>
+  <span class="n">gx</span> <span class="o">=</span> <span class="n">mpu6050</span><span class="p">.</span><span class="n">getGyroX</span><span class="p">();</span>
+  <span class="n">gy</span> <span class="o">=</span> <span class="n">mpu6050</span><span class="p">.</span><span class="n">getGyroY</span><span class="p">();</span>
+  <span class="n">gz</span> <span class="o">=</span> <span class="n">mpu6050</span><span class="p">.</span><span class="n">getGyroZ</span><span class="p">();</span>
+
+  <span class="n">M5</span><span class="p">.</span><span class="n">Lcd</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+  <span class="n">M5</span><span class="p">.</span><span class="n">Lcd</span><span class="p">.</span><span class="n">setCursor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+  <span class="n">M5</span><span class="p">.</span><span class="n">Lcd</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;ax: %f&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="p">);</span>
+  <span class="n">M5</span><span class="p">.</span><span class="n">Lcd</span><span class="p">.</span><span class="n">setCursor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">);</span>
+  <span class="n">M5</span><span class="p">.</span><span class="n">Lcd</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;ay: %f&quot;</span><span class="p">,</span> <span class="n">ay</span><span class="p">);</span>
+  <span class="n">M5</span><span class="p">.</span><span class="n">Lcd</span><span class="p">.</span><span class="n">setCursor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">40</span><span class="p">);</span>
+  <span class="n">M5</span><span class="p">.</span><span class="n">Lcd</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;az: %f&quot;</span><span class="p">,</span> <span class="n">az</span><span class="p">);</span>
+  <span class="n">M5</span><span class="p">.</span><span class="n">Lcd</span><span class="p">.</span><span class="n">setCursor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">60</span><span class="p">);</span>
+  <span class="n">M5</span><span class="p">.</span><span class="n">Lcd</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;gx: %f&quot;</span><span class="p">,</span> <span class="n">gx</span><span class="p">);</span>
+  <span class="n">M5</span><span class="p">.</span><span class="n">Lcd</span><span class="p">.</span><span class="n">setCursor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">80</span><span class="p">);</span>
+  <span class="n">M5</span><span class="p">.</span><span class="n">Lcd</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;gy: %f&quot;</span><span class="p">,</span> <span class="n">gy</span><span class="p">);</span>
+  <span class="n">M5</span><span class="p">.</span><span class="n">Lcd</span><span class="p">.</span><span class="n">setCursor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">);</span>
+  <span class="n">M5</span><span class="p">.</span><span class="n">Lcd</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;gz: %f&quot;</span><span class="p">,</span> <span class="n">gz</span><span class="p">);</span>
+
+  <span class="n">Serial</span><span class="p">.</span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%f,%f,%f,%f,%f,%f</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span><span class="o">+</span><span class="n">ay</span><span class="p">,</span><span class="n">az</span><span class="p">,</span><span class="n">gx</span><span class="p">,</span><span class="n">gy</span><span class="p">,</span><span class="n">gz</span><span class="p">);</span>
+
+  <span class="n">delay</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+  <span class="n">M5</span><span class="p">.</span><span class="n">update</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>コンパイルして書き込んだ結果、画面に加速度・角加速度が表示され、シリアル経由でもデータが受信できました</p>
+<p><img alt="20200128_screenshot1.png" src="images/20200128_screenshot5.jpg"></p>
+<h2>3. シリアルプロッタで表示</h2>
+<p>加速度、角加速度はCSVのようにカンマ区切りでデータが送られてきます。このような形式のデータは、Arduino IDEに標準搭載されているシリアルプロッタを使うと簡単にグラフ表示できます。</p>
+<p>シリアルプロッタは「ツール」＞「シリアルプロッタ」で起動します</p>
+<p><img alt="20200128_screenshot1.png" src="images/20200128_screenshot1.png"></p>
+<p>M5Stackを繋いだ状態だと、自動的にグラフ表示がはじまります</p>
+<p><img alt="20200128_screenshot1.png" src="images/20200128_screenshot2.png"></p>
+<p>いかがでしたでしょうか？MPU6050は一般で広く使用されている加速度・角加速度センサーですが、M5Stackを使うと簡単にセンサーデータの取得とグラフ表示が出来ました。しかしセンサーデータはノイズが含まれていて、このままデータを使用すると徐々に本来の姿勢からずれていく現象が発生します(ドリフト現象)</p>
+<p>次回は、これら加速度・角加速度から角度を算出し、さらにドリフト現象を補正しながら現在の姿勢を推定する方法を、理論と実装の両面から解説していこうと思います。</p>
+<p>参考サイト</p>
+<ul>
+<li>https://strawberry-linux.com/pub/AK8963.pdf</li>
+<li>https://www.fujiele.co.jp/semiconductor/ti/tecinfo/news201707140000/</li>
+<li>http://watako-lab.com/2019/02/28/3axis_gyro/</li>
+<li>https://lab.fujiele.co.jp/articles/3962/</li>
+<li>https://strawberry-linux.com/catalog/items?code=12250</li>
+</ul>
+    </article>
+
+        <div class="tags">
+            <p>tags: <a href="./tag/etsuzikonpiyuteingu.html">エッジコンピューティング</a>, <a href="./tag/m5stack.html">M5Stack</a>, <a href="./tag/esp32.html">ESP32</a></p>
+        </div>
+
+    <hr>
+
+        <div class="comments">
+            <h5>コメント</h5>
+            <div id="disqus_thread"></div>
+            <script type="text/javascript">
+                var disqus_shortname = 'whitepaper-tech-blog';
+                var disqus_identifier = 'M5Stack-Series-1.html';
+                var disqus_url = 'https://tech.wpaper-inc.com/M5Stack-Series-1.html';
+                (function() {
+                    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                    dsq.src = '//whitepaper-tech-blog.disqus.com/embed.js';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                })();
+            </script>
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                            <li>
+                                <a href="#">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-you can add links in your config file fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-another social link fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                    </ul>
+<p class="copyright text-muted">
+    Blog powered by <a href="http://getpelican.com">Pelican</a>,
+    which takes great advantage of <a href="http://python.org">Python</a>. <br />        &copy;  Whitepaper Inc.
+</p>                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="./theme/js/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="./theme/js/bootstrap.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="./theme/js/clean-blog.min.js"></script>
+
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-122761088-2', 'auto');
+    ga('send', 'pageview');
+</script>
+<script type="text/javascript">
+    var disqus_shortname = 'whitepaper-tech-blog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+
+</html>

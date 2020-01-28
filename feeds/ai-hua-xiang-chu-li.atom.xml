@@ -1,5 +1,217 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Whitepaper Tech Blog - AI, 画像処理</title><link href="https://tech.wpaper-inc.com/" rel="alternate"></link><link href="https://tech.wpaper-inc.com/feeds/ai-hua-xiang-chu-li.atom.xml" rel="self"></link><id>https://tech.wpaper-inc.com/</id><updated>2020-01-06T00:00:00+09:00</updated><entry><title>JeVois Tutorial(1) Ubuntu18.04でJeVois開発環境作成と、サンプルコードをコマンドラインから実行</title><link href="https://tech.wpaper-inc.com/JeVois-Tutorial-1.html" rel="alternate"></link><published>2020-01-06T00:00:00+09:00</published><updated>2020-01-06T00:00:00+09:00</updated><author><name>Kousuke Takeuchi</name></author><id>tag:tech.wpaper-inc.com,2020-01-06:/JeVois-Tutorial-1.html</id><summary type="html">&lt;p&gt;jevoisのC++開発環境を作成するために行ったことのメモ。もともとJeVoisで顔の特徴量を分析し、USBシリアル経由でホストマシンに送信するために、チュートリアルを読み漁っていたら、JeVoisに関する日本語のまとまった記事がなかったため、細かくメモを取ることにした。JevoisのプログラミングチュートリアルはこちらにC++開発環境の構築手順が載っていた。ただしすでに環境をビルド済みのVirtualboxコンテナの配布とインストール方法だけしか説明されておらず、中に何がインストールされているか分からないのは気持ちが悪いので、マニュアルで環境構築を行った。&lt;/p&gt;</summary><content type="html">&lt;p&gt;jevoisのC++開発環境を作成するために行ったことのメモ&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Whitepaper Tech Blog - AI, 画像処理</title><link href="https://tech.wpaper-inc.com/" rel="alternate"></link><link href="https://tech.wpaper-inc.com/feeds/ai-hua-xiang-chu-li.atom.xml" rel="self"></link><id>https://tech.wpaper-inc.com/</id><updated>2020-01-09T00:00:00+09:00</updated><entry><title>JeVois Tutorial(2) - JeVoisでOpenCVのコーナー検出(C++)を実行</title><link href="https://tech.wpaper-inc.com/JeVois-Tutorial-2.html" rel="alternate"></link><published>2020-01-09T00:00:00+09:00</published><updated>2020-01-09T00:00:00+09:00</updated><author><name>Kousuke Takeuchi</name></author><id>tag:tech.wpaper-inc.com,2020-01-09:/JeVois-Tutorial-2.html</id><summary type="html">&lt;p&gt;サンプルコードではOpenCVが使用されていませんでしたが、jevois-sdkをインストールする際にOpenCV(4.0)パッケージも一緒にインストールされています。OpenCVの画像処理モジュールはそのまま使えますが、jevoisのモジュールから取得した画像をOpenCVで取り扱えるように変換する必要があることに注意しながら、コーナー検出のプログラムを書いていきますHeader_Cover: images/20200106_jevois-header.jpg&lt;/p&gt;</summary><content type="html">&lt;h2&gt;1. HelloJeVoisのサンプルプログラム&lt;/h2&gt;
+&lt;p&gt;前回はC++の開発環境を構築しました。その後、カメラ画像に「Hello World」を表示するモジュールを実行しました。&lt;/p&gt;
+&lt;p&gt;モジュールのプログラム本体は&lt;code&gt;src/Modules/HelloJeVois/HelloJeVois.C&lt;/code&gt;です。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt; &lt;span class="cp"&gt;#include&lt;/span&gt; &lt;span class="cpf"&gt;&amp;lt;jevois/Core/Module.H&amp;gt;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+ &lt;span class="cp"&gt;#include&lt;/span&gt; &lt;span class="cpf"&gt;&amp;lt;jevois/Image/RawImageOps.H&amp;gt;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+
+ &lt;span class="c1"&gt;// icon by Catalin Fertu in cinema at flaticon&lt;/span&gt;
+
+ &lt;span class="c1"&gt;//! JeVois sample module&lt;/span&gt;
+ &lt;span class="cm"&gt;/*! This module is provided as an example of how to create a new standalone module.&lt;/span&gt;
+
+&lt;span class="cm"&gt;     JeVois provides helper scripts and files to assist you in programming new modules, following two basic formats:&lt;/span&gt;
+
+&lt;span class="cm"&gt;     - if you wish to only create a single module that will execute a specific function, or a collection of such modules&lt;/span&gt;
+&lt;span class="cm"&gt;       where there is no shared code between the modules (i.e., each module does things that do not relate to the other&lt;/span&gt;
+&lt;span class="cm"&gt;       modules), use the skeleton provided by this sample module. Here, all the code for the sample module is compiled&lt;/span&gt;
+&lt;span class="cm"&gt;       into a single shared object (.so) file that is loaded by the JeVois engine when the corresponding video output&lt;/span&gt;
+&lt;span class="cm"&gt;       format is selected by the host computer.&lt;/span&gt;
+
+&lt;span class="cm"&gt;     - if you are planning to write a collection of modules with some shared algorithms among several of the modules, it&lt;/span&gt;
+&lt;span class="cm"&gt;       is better to first create machine vision Components that implement the algorithms that are shared among several of&lt;/span&gt;
+&lt;span class="cm"&gt;       your modules. You would then compile all your components into a first shared library (.so) file, and then compile&lt;/span&gt;
+&lt;span class="cm"&gt;       each module into its own shared object (.so) file that depends on and automatically loads your shared library file&lt;/span&gt;
+&lt;span class="cm"&gt;       when it is selected by the host computer. The jevoisbase library and collection of components and modules is an&lt;/span&gt;
+&lt;span class="cm"&gt;       example for how to achieve that, where libjevoisbase.so contains code for Saliency, ObjectRecognition, etc&lt;/span&gt;
+&lt;span class="cm"&gt;       components that are used in several modules, and each module&amp;#39;s .so file contains only the code specific to that&lt;/span&gt;
+&lt;span class="cm"&gt;       module.&lt;/span&gt;
+
+&lt;span class="cm"&gt;     @author Sample Author&lt;/span&gt;
+
+&lt;span class="cm"&gt;     @videomapping YUYV 640 480 28.5 YUYV 640 480 28.5 SampleVendor HelloJeVois&lt;/span&gt;
+&lt;span class="cm"&gt;     @email sampleemail\@samplecompany.com&lt;/span&gt;
+&lt;span class="cm"&gt;     @address 123 First Street, Los Angeles, CA 90012&lt;/span&gt;
+&lt;span class="cm"&gt;     @copyright Copyright (C) 2017 by Sample Author&lt;/span&gt;
+&lt;span class="cm"&gt;     @mainurl http://samplecompany.com&lt;/span&gt;
+&lt;span class="cm"&gt;     @supporturl http://samplecompany.com/support&lt;/span&gt;
+&lt;span class="cm"&gt;     @otherurl http://samplecompany.com/about&lt;/span&gt;
+&lt;span class="cm"&gt;     @license GPL v3&lt;/span&gt;
+&lt;span class="cm"&gt;     @distribution Unrestricted&lt;/span&gt;
+&lt;span class="cm"&gt;     @restrictions None */&lt;/span&gt;
+ &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;HelloJeVois&lt;/span&gt; &lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="k"&gt;public&lt;/span&gt; &lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;Module&lt;/span&gt;
+ &lt;span class="p"&gt;{&lt;/span&gt;
+   &lt;span class="k"&gt;public&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+     &lt;span class="c1"&gt;//! Default base class constructor ok&lt;/span&gt;
+     &lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;Module&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;Module&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+     &lt;span class="c1"&gt;//! Virtual destructor for safe inheritance&lt;/span&gt;
+     &lt;span class="k"&gt;virtual&lt;/span&gt; &lt;span class="o"&gt;~&lt;/span&gt;&lt;span class="n"&gt;HelloJeVois&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+
+     &lt;span class="c1"&gt;//! Processing function&lt;/span&gt;
+     &lt;span class="k"&gt;virtual&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="n"&gt;process&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;InputFrame&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;inframe&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;OutputFrame&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;outframe&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;override&lt;/span&gt;
+     &lt;span class="p"&gt;{&lt;/span&gt;
+       &lt;span class="c1"&gt;// Wait for next available camera image:&lt;/span&gt;
+       &lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;RawImage&lt;/span&gt; &lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;inimg&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;inframe&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;true&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+       &lt;span class="c1"&gt;// We only support YUYV pixels in this example, any resolution:&lt;/span&gt;
+       &lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;require&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;input&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;height&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;V4L2_PIX_FMT_YUYV&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+       &lt;span class="c1"&gt;// Wait for an image from our gadget driver into which we will put our results:&lt;/span&gt;
+       &lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;RawImage&lt;/span&gt; &lt;span class="n"&gt;outimg&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;outframe&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+
+       &lt;span class="c1"&gt;// Enforce that the input and output formats and image sizes match:&lt;/span&gt;
+       &lt;span class="n"&gt;outimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;require&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;output&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;height&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+       &lt;span class="c1"&gt;// Just copy the pixel data over:&lt;/span&gt;
+       &lt;span class="n"&gt;memcpy&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;outimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pixelsw&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kt"&gt;void&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pixels&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kt"&gt;void&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;min&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;buf&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;length&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;outimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;buf&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;length&lt;/span&gt;&lt;span class="p"&gt;()));&lt;/span&gt;
+
+       &lt;span class="c1"&gt;// Print a text message:&lt;/span&gt;
+       &lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;rawimage&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;writeText&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;outimg&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;Hello JeVois!&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;230&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;yuyv&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;White&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;rawimage&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;Font20x38&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+       &lt;span class="c1"&gt;// Let camera know we are done processing the input image:&lt;/span&gt;
+       &lt;span class="n"&gt;inframe&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;done&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt; &lt;span class="c1"&gt;// NOTE: optional here, inframe destructor would call it anyway&lt;/span&gt;
+
+       &lt;span class="c1"&gt;// Send the output image with our processing results to the host over USB:&lt;/span&gt;
+       &lt;span class="n"&gt;outframe&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;send&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt; &lt;span class="c1"&gt;// NOTE: optional here, outframe destructor would call it anyway&lt;/span&gt;
+     &lt;span class="p"&gt;}&lt;/span&gt;
+ &lt;span class="p"&gt;};&lt;/span&gt;
+
+ &lt;span class="c1"&gt;// Allow the module to be loaded as a shared object (.so) file:&lt;/span&gt;
+ &lt;span class="n"&gt;JEVOIS_REGISTER_MODULE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;HelloJeVois&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;不要なコメントを省いて解説すると、プログラムの上から。。。&lt;/p&gt;
+&lt;p&gt;まずは、jevoisカメラからの画像取得や操作に必要なライブラリをインポートします。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt; &lt;span class="cp"&gt;#include&lt;/span&gt; &lt;span class="cpf"&gt;&amp;lt;jevois/Core/Module.H&amp;gt;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+ &lt;span class="cp"&gt;#include&lt;/span&gt; &lt;span class="cpf"&gt;&amp;lt;jevois/Image/RawImageOps.H&amp;gt;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;続いて、動画像処理のためのクラスを定義します。定義したクラスを&lt;code&gt;JEVOIS_REGISTER_MODULE(&amp;lt;class_name\&amp;gt;)&lt;/code&gt;でJeVoisで登録すると、カメラ画像をこのクラスで定義した関数で処理するようになります。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;HelloJeVois&lt;/span&gt; &lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="k"&gt;public&lt;/span&gt; &lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;Module&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;span class="cp"&gt;# ... 関数の定義&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;JEVOIS_REGISTER_MODULE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;HelloJeVois&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;HelloJevoisクラスには、3つのpublic関数が定義されています。まずは共有コンストラクター/デコンストラクタです。この二つは特別なセットアップとシャットダウンをしない限りは使用することはなさそうです。&lt;/p&gt;
+&lt;p&gt;メインで記述するのが、&lt;code&gt;virtual void process&lt;/code&gt;です。processには「&lt;code&gt;inframe&lt;/code&gt;」と「&lt;code&gt;outframe&lt;/code&gt;」が引数で指定されています。&lt;code&gt;inframe&lt;/code&gt;には、JeVoisのファームが自動的に撮影した画像を指定してくれて、&lt;code&gt;outframe&lt;/code&gt;には、自分で処理した画像を指定する必要があります。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;virtual&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;process&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;InputFrame&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;inframe&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;OutputFrame&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;outframe&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;override&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="cp"&gt;# ...ここに画像の処理内容を記述&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;続いて、主に使用するクラスモジュールですが、ここでは&lt;code&gt;jevois::InputFrame&lt;/code&gt;, &lt;code&gt;`jevois::InputFrame&lt;/code&gt;, &lt;code&gt;jevois::RawImage&lt;/code&gt;と&lt;code&gt;jevois::rawimage&lt;/code&gt;モジュールになります。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;InputFrame/OutputFrame&lt;/code&gt;は、カメラから動画を取得したり、USB経由で配信する動画を設定するモジュールです。デバイスと画像データの橋渡しをするだけです。&lt;/p&gt;
+&lt;p&gt;主に操作するのが&lt;code&gt;jevois::RawImage&lt;/code&gt;で、InputFrameから取得した画像データになります。OpenCVにおける&lt;code&gt;cv::Mat&lt;/code&gt;クラスのようなもので、画像のピクセルデータと、画像のサイズやチャンネルデータを格納するクラスになります。&lt;/p&gt;
+&lt;p&gt;そして、画像に文字を描画したり操作するモジュールが、&lt;code&gt;jevois::rawimage&lt;/code&gt;モジュールになります。いろいろ操作関数が定義されています。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;RawImage&lt;/span&gt; &lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;inimg&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;inframe&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;true&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;require&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;input&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;height&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;V4L2_PIX_FMT_YUYV&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;RawImage&lt;/span&gt; &lt;span class="n"&gt;outimg&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;outframe&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;span class="n"&gt;outimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;require&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;output&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;height&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;まずは、&lt;a href="http://jevois.org/doc/classjevois_1_1InputFrame.html#a3300ed6b18c5b5488cf062a5b45c3b56"&gt;&lt;code&gt;InputFrame::get()&lt;/code&gt;&lt;/a&gt;でカメラ画像を取得します。取得した画像は&lt;code&gt;RawImage&lt;/code&gt;クラスとして返されます。続いて&lt;a href="http://jevois.org/doc/classjevois_1_1RawImage.html#aacde26c84586c08d1e913694670d2d8e"&gt;&lt;code&gt;RawImage::require()&lt;/code&gt;&lt;/a&gt;を呼び出していますが、JeVoisはvideomappingでモジュールに関係なくカメラ画像の解像度やピクセルフォーマットを変更することができるので、モジュール側で制限が必要な場合はrequire関数で制限を設定します。今回は解像度は何でもいいので、inimgのサイズをそのまま使っています。また、ピクセルフォーマットは&lt;code&gt;YUYV&lt;/code&gt;を指定します。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;OutputFrame&lt;/code&gt;でも同様に、出力する画像を取得します。ここで、取得しているのは画像配列へのポインタであって、配列にはまだ画像データが設定されていないことに注意してください。このポインタに対して画像を設定することで、USB経由で処理画像が送信されます。&lt;/p&gt;
+&lt;p&gt;さらに、&lt;code&gt;outimg.require&lt;/code&gt;では、ピクセルフォーマットを&lt;code&gt;inimg.fmt&lt;/code&gt;に設定しています。入力画像と同じYUYVになるように画像処理をしないといけないです。&lt;/p&gt;
+&lt;p&gt;続いて、出力画像に処理を加えていきます。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;memcpy&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;outimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pixelsw&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kt"&gt;void&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pixels&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kt"&gt;void&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;min&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;buf&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;length&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;outimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;buf&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;length&lt;/span&gt;&lt;span class="p"&gt;()));&lt;/span&gt;
+
+&lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;rawimage&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;writeText&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;outimg&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;Hello JeVois!&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;230&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;yuyv&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;White&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;rawimage&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;Font20x38&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;まずはmemcopyで、&lt;code&gt;inimg&lt;/code&gt;の画像データをそのまま出力画像&lt;code&gt;outimg&lt;/code&gt;に設定します。&lt;/p&gt;
+&lt;p&gt;その後、&lt;code&gt;rawimage::writeText&lt;/code&gt;で、&lt;code&gt;outimg&lt;/code&gt;に文字を描画します。引数の詳細は&lt;a href="http://jevois.org/doc/group__image.html#ga893e982b449643c8853afe424fb72c09"&gt;こちら&lt;/a&gt;にありますが、やっていることは描画する座標とフォント、色の設定くらいです。OpenCVほど高機能にはなっていないみたいです。&lt;/p&gt;
+&lt;p&gt;最後に、&lt;code&gt;inframe.done()&lt;/code&gt;と&lt;code&gt;outframe.send()&lt;/code&gt;を呼び出します。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;inframe&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;done&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt; &lt;span class="c1"&gt;// NOTE: optional here, inframe destructor would call it anyway&lt;/span&gt;
+&lt;span class="n"&gt;outframe&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;send&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;a href="http://jevois.org/doc/classjevois_1_1InputFrame.html#a3ad6ba7b0e66fefb8e43944ca4e90bcf"&gt;&lt;code&gt;InputFrame::done()&lt;/code&gt;&lt;/a&gt;は、カメラ画像のフレーム取得を終了する関数ですが、ドキュメントには&lt;code&gt;InputFrame::get()&lt;/code&gt;を呼び出したらすぐにdoneを実行してくれと書いてあります。ただし、コメントにもある通り、呼び出さなくてもデコンストラクタで必ず実行されるらしいです。InFrame::getをしたらすぐにdoneを呼び出すのが賢明そうです。&lt;/p&gt;
+&lt;p&gt;&lt;a href="http://jevois.org/doc/classjevois_1_1OutputFrame.html#ae6dafb6fab88b4166dc4b206c21c56a8"&gt;&lt;code&gt;OutputFrame::send()&lt;/code&gt;&lt;/a&gt;でUSB経由で処理画像データの送信を開始します。&lt;/p&gt;
+&lt;h2&gt;2. OpenCVでコーナー検出&lt;/h2&gt;
+&lt;p&gt;サンプルコードではOpenCVが使用されていませんでしたが、&lt;code&gt;jevois-sdk&lt;/code&gt;をインストールする際にOpenCV(4.0)パッケージも一緒にインストールされています。&lt;/p&gt;
+&lt;p&gt;OpenCVの画像処理モジュールはそのまま使えますが、jevoisのモジュールから取得した画像をOpenCVで取り扱えるように変換する必要があることに注意しながら、コーナー検出のプログラムを書いていきます。&lt;/p&gt;
+&lt;p&gt;まずは、opencvのライブラリをインポートして、共通クラスを書いていきます。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="cp"&gt;#include&lt;/span&gt; &lt;span class="cpf"&gt;&amp;lt;jevois/Core/Module.H&amp;gt;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+&lt;span class="cp"&gt;#include&lt;/span&gt; &lt;span class="cpf"&gt;&amp;lt;jevois/Image/RawImageOps.H&amp;gt;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+
+&lt;span class="cp"&gt;#include&lt;/span&gt; &lt;span class="cpf"&gt;&amp;lt;iostream&amp;gt;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+
+&lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="k"&gt;namespace&lt;/span&gt; &lt;span class="n"&gt;cv&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="k"&gt;namespace&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="cm"&gt;/*&lt;/span&gt;
+&lt;span class="cm"&gt;    @author Whitepaper&lt;/span&gt;
+
+&lt;span class="cm"&gt;    @videomapping YUYV 640 480 28.5 YUYV 640 480 28.5 SampleVendor HelloJeVois&lt;/span&gt;
+&lt;span class="cm"&gt;    @copyright Copyright (C) 2020 by Whitepaper&lt;/span&gt;
+&lt;span class="cm"&gt;    @distribution Unrestricted&lt;/span&gt;
+&lt;span class="cm"&gt;    @restrictions None */&lt;/span&gt;
+
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;HelloJeVois&lt;/span&gt; &lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="k"&gt;public&lt;/span&gt; &lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;Module&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="k"&gt;public&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;Module&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;Module&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="k"&gt;virtual&lt;/span&gt; &lt;span class="o"&gt;~&lt;/span&gt;&lt;span class="n"&gt;HelloJeVois&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;virtual&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="n"&gt;process&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;InputFrame&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;inframe&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;OutputFrame&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;outframe&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;override&lt;/span&gt;
+    &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;RawImage&lt;/span&gt; &lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;inimg&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;inframe&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;true&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+      &lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;require&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;input&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;height&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;V4L2_PIX_FMT_YUYV&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+      &lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;RawImage&lt;/span&gt; &lt;span class="n"&gt;outimg&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;outframe&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+      &lt;span class="n"&gt;outimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;require&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;output&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;width&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;height&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;fmt&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+      &lt;span class="cp"&gt;# ... ここに検出ロジックを記述&lt;/span&gt;
+
+      &lt;span class="n"&gt;inframe&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;done&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+      &lt;span class="n"&gt;outframe&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;send&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+
+&lt;span class="n"&gt;JEVOIS_REGISTER_MODULE&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;HelloJeVois&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;続いて、jevoisのモジュールから取得した画像を&lt;code&gt;cv::Mat&lt;/code&gt;に変換するためには、&lt;a href="http://jevois.org/doc/namespacejevois_1_1rawimage.html"&gt;&lt;code&gt;jevois::rawimage::convertToCvBGR()&lt;/code&gt;&lt;/a&gt;を使用します。グレースケールに変換して画像を取得するには、&lt;code&gt;jevois::rawimage::convertToCvGray()&lt;/code&gt;を呼び出します。&lt;/p&gt;
+&lt;p&gt;OpenCVのコーナー検出は、グレースケールの画像を使用するため、以下のように書きます。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;// グレースケールと標準化&lt;/span&gt;
+&lt;span class="n"&gt;Mat&lt;/span&gt; &lt;span class="n"&gt;grayImg&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;rawimage&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;convertToCvGray&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;inimg&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;normalize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;grayImg&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;grayImg&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;255&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;NORM_MINMAX&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;これで、&lt;code&gt;jevois::RawImage&lt;/code&gt;を&lt;code&gt;cv::Mat&lt;/code&gt;に変換できました。あとはOpenCVでコーナー検出を行います。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;// コーナーの検出&lt;/span&gt;
+&lt;span class="n"&gt;vector&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Point2f&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;corners&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="n"&gt;goodFeaturesToTrack&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;grayImg&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;corners&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;80&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;0.01&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;vector&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Point2f&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;::&lt;/span&gt;&lt;span class="n"&gt;iterator&lt;/span&gt; &lt;span class="n"&gt;it_corner&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;corners&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;begin&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(;&lt;/span&gt; &lt;span class="n"&gt;it_corner&lt;/span&gt;&lt;span class="o"&gt;!=&lt;/span&gt;&lt;span class="n"&gt;corners&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;end&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt; &lt;span class="o"&gt;++&lt;/span&gt;&lt;span class="n"&gt;it_corner&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;rawimage&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;drawCircle&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;outimg&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;it_corner&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;it_corner&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;jevois&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;yuyv&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;LightGreen&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;cv::goodFeaturesToTrack&lt;/code&gt;でコーナーを検出し、corners配列に格納しています。最後に検出したコーナーをforループで取り出し、&lt;code&gt;outimg&lt;/code&gt;に描画しています。描画は&lt;code&gt;jevois::RawImage&lt;/code&gt;にするため、&lt;a href="http://jevois.org/doc/group__image.html#gae7d102e1c456f87337d66a9a2fc11a58"&gt;&lt;code&gt;jevois::rawimage::drawCircle&lt;/code&gt;&lt;/a&gt;関数を呼び出しています。&lt;/p&gt;
+&lt;p&gt;プログラムが書ければ、再度ビルドして実行します。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ ./rebuild-platform.sh --live
+$ guvcview
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;実行の結果、JeVoisでコーナー検出ができました。&lt;/p&gt;
+&lt;p&gt;&lt;img alt="20200109_screenshot1.png" src="images/20200109_screenshot1.png"&gt;&lt;/p&gt;</content><category term="AI, 画像処理"></category><category term="エッジコンピューティング"></category><category term="画像処理"></category><category term="JeVois"></category></entry><entry><title>JeVois Tutorial(1) Ubuntu18.04でJeVois開発環境作成と、サンプルコードをコマンドラインから実行</title><link href="https://tech.wpaper-inc.com/JeVois-Tutorial-1.html" rel="alternate"></link><published>2020-01-06T00:00:00+09:00</published><updated>2020-01-06T00:00:00+09:00</updated><author><name>Kousuke Takeuchi</name></author><id>tag:tech.wpaper-inc.com,2020-01-06:/JeVois-Tutorial-1.html</id><summary type="html">&lt;p&gt;jevoisのC++開発環境を作成するために行ったことのメモ。もともとJeVoisで顔の特徴量を分析し、USBシリアル経由でホストマシンに送信するために、チュートリアルを読み漁っていたら、JeVoisに関する日本語のまとまった記事がなかったため、細かくメモを取ることにした。JevoisのプログラミングチュートリアルはこちらにC++開発環境の構築手順が載っていた。ただしすでに環境をビルド済みのVirtualboxコンテナの配布とインストール方法だけしか説明されておらず、中に何がインストールされているか分からないのは気持ちが悪いので、マニュアルで環境構築を行った。&lt;/p&gt;</summary><content type="html">&lt;p&gt;jevoisのC++開発環境を作成するために行ったことのメモ&lt;/p&gt;
 &lt;p&gt;もともとJeVoisで顔の特徴量を分析し、USBシリアル経由でホストマシンに送信するために、チュートリアルを読み漁っていたら、JeVoisに関する日本語のまとまった記事がなかったため、細かくメモを取ることにした。&lt;/p&gt;
 &lt;p&gt;Jevoisのプログラミングチュートリアルは&lt;a href="http://jevois.org/tutorials/ProgrammerTutorials.html"&gt;こちら&lt;/a&gt;に掲載されており、&lt;a href="http://jevois.org/tutorials/ProgrammerVbox.html"&gt;Using the pre-installed jevois-sdk VirtualBox for development&lt;/a&gt;にC++開発環境の構築手順が載っていた。ただしすでに環境をビルド済みのVirtualboxコンテナの配布とインストール方法だけしか説明されておらず、中に何がインストールされているか分からないのは気持ちが悪いので、マニュアルで環境構築を行った。&lt;/p&gt;
 &lt;p&gt;マニュアルで環境を構築するために、&lt;a href="https://jevois.usc.edu/"&gt;こちらのページ&lt;/a&gt;を参考にした。&lt;/p&gt;
