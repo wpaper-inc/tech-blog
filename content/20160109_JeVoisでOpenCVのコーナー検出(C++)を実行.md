@@ -4,7 +4,7 @@ Category: AI, 画像処理
 Tags: エッジコンピューティング, 画像処理, JeVois
 Slug: JeVois-Tutorial-2
 Authors: Kousuke Takeuchi
-Summary: サンプルコードではOpenCVが使用されていませんでしたが、jevois-sdkをインストールする際にOpenCV(4.0)パッケージも一緒にインストールされています。OpenCVの画像処理モジュールはそのまま使えますが、jevoisのモジュールから取得した画像をOpenCVで取り扱えるように変換する必要があることに注意しながら、コーナー検出のプログラムを書いていきますHeader_Cover: images/20200106_jevois-header.jpg
+Summary: サンプルコードではOpenCVが使用されていませんでしたが、jevois-sdkをインストールする際にOpenCV(4.0)パッケージも一緒にインストールされています。OpenCVの画像処理モジュールはそのまま使えますが、jevoisのモジュールから取得した画像をOpenCVで取り扱えるように変換する必要があることに注意しながら、コーナー検出のプログラムを書いていきます
 Header_Cover: images/20200106_jevois-header.jpg
 Og_Image: https://tech.wpaper-inc.com/images/20200106_JeVois_tg2e9bgo.jpg
 Twitter_Image: https://tech.wpaper-inc.com/images/20200106_JeVois_tg2e9bgo.jpg

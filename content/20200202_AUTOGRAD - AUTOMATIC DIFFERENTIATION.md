@@ -4,7 +4,8 @@ Category: ESP32
 Tags: ディープラーニング, AI, PyTorch, チュートリアル
 Slug: pytorch-autograd
 Authors: Kousuke Takeuchi
-Summary: PyTorch Tutorialの日本語訳です。最近TensorFlowからPyTorchに切り替えた際に学習で使用した公式サイトですが、日本語訳が見つからなかったので訳文を作成しました。今回はDEEP LEARNING WITH PYTORCH: A 60 MINUTE BLITZのAutograd : Automatic Differentiationについての日本語訳になります。Header_Cover: images/20200202_autodiff.png
+Summary: 今回はDEEP LEARNING WITH PYTORCH- A 60 MINUTE BLITZのAutograd - Automatic Differentiationについての日本語訳になります。
+Header_Cover: images/20200202_autodiff.png
 Og_Image: https://tech.wpaper-inc.com/images/20200202_autodiff.png
 Twitter_Image: https://tech.wpaper-inc.com/images/20200202_autodiff.png
 
