@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="japanese">
+
+<head>
+            <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+        <title>PyTorch Tutorial翻訳 - Autograd</title>
+
+        <!-- Bootstrap Core CSS -->
+        <link href="./theme/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="./theme/css/clean-blog.min.css" rel="stylesheet">
+
+        <!-- Code highlight color scheme -->
+            <link href="./theme/css/code_blocks/darkly.css" rel="stylesheet">
+
+
+        <!-- Custom Fonts -->
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+
+
+        <meta name="description" content="PyTorch Tutorialの日本語訳です。最近TensorFlowからPyTorchに切り替えた際に学習で使用した公式サイトですが、日本語訳が見つからなかったので訳文を作成しました。今回はDEEP LEARNING WITH PYTORCH: A 60 MINUTE...">
+
+        <meta name="author" content="Kousuke Takeuchi">
+
+        <meta name="tags" content="ディープラーニング">
+        <meta name="tags" content="AI">
+        <meta name="tags" content="PyTorch">
+        <meta name="tags" content="チュートリアル">
+
+	                <meta property="og:locale" content="">
+		<meta property="og:site_name" content="Whitepaper Tech Blog">
+
+	<meta property="og:type" content="article">
+            <meta property="article:author" content="./author/kousuke-takeuchi.html">
+	<meta property="og:url" content="./pytorch-autograd.html">
+	<meta property="og:title" content="PyTorch Tutorial翻訳 - Autograd">
+	<meta property="article:published_time" content="2020-02-02 00:00:00+09:00">
+            <meta property="og:description" content="PyTorch Tutorialの日本語訳です。最近TensorFlowからPyTorchに切り替えた際に学習で使用した公式サイトですが、日本語訳が見つからなかったので訳文を作成しました。今回はDEEP LEARNING WITH PYTORCH: A 60 MINUTE...">
+
+                <meta property="og:image" content="https://tech.wpaper-inc.com/images/20200202_autodiff.png">
+    <link rel="icon" href="/favicon.ico">
+</head>
+
+<body class="article-pytorch-autograd">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="./">Whitepaper Tech Blog</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+        <header class="intro-header" style="background-image: url('./site_images/osaka-castle.jpg')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <div class="post-heading">
+                        <h1>PyTorch Tutorial翻訳 - Autograd</h1>
+                        <span class="meta">Posted by
+                                <a href="./author/kousuke-takeuchi.html">Kousuke Takeuchi</a>
+                             on 日 02 2月 2020
+                        </span>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+    <!-- Post Content -->
+    <article>
+        <p><a href="https://pytorch.org/tutorials/">PyTorch Tutorial</a>の日本語訳です。最近TensorFlowからPyTorchに切り替えた際に学習で使用した公式サイトですが、日本語訳が見つからなかったので訳文を作成しました。</p>
+<p>今回は<a href="https://pytorch.org/tutorials/beginner/deep_learning_60min_blitz.html">DEEP LEARNING WITH PYTORCH: A 60 MINUTE BLITZ</a>の<a href="https://pytorch.org/tutorials/beginner/blitz/autograd_tutorial.html#sphx-glr-beginner-blitz-autograd-tutorial-py">Autograd : Automatic Differentiation</a>についての日本語訳になります。</p>
+<p>Auto Grad : 自動微分
+PyTorchにおけるニューラルネットワークの主題は<code>autograd</code>パッケージである。簡単に体験して、初めてのニューラルネットを試してみる。</p>
+<p><code>autograd</code>パッケージはすべてのテンソルでの演算における自動微分を提供する。「define-by-run」のフレームワークであり、つまりコードがどのように実行されるかによってバックプロパゲーションが定義され、各イテレーションは別とできる。</p>
+<h2>Tensor</h2>
+<p><code>torch.Tensor</code>はパッケージでも中心的なクラスである、<code>.requires_grad</code>がTrueになっていれば、すべての演算を追跡し始めて、計算が終了した段階で<code>.backward()</code>を呼び出せるようになる。そして自動的にすべての勾配が計算される。計算された勾配はテンソルに<code>.grad</code>属性として蓄積される。</p>
+<p>テンソルを追跡履歴からやめる場合は、<code>.detach()</code>を呼び出して計算履歴から取り除き、今後の計算では追跡されないようにする。</p>
+<p>追跡履歴に入れたくない場合は、コードブロックを<code>with torch.no_grad():</code>フレーズで囲ってあげる。これはモデルを評価する場合に部分的に有効となりうる。なぜならモデルは<code>requires_grad=True</code>の際にパラメータがトレーニングされうるものとなり、評価の際には勾配は不要であるからである。</p>
+<p>自動微分を実装する際に重要なクラスがもう一つある。それは<code>Function</code>である。</p>
+<p><code>Tensor</code>と<code>Function</code>は内部接続されており、かつ非周期的なグラフを構築する。そのグラフは計算履歴をエンコードしたもの。それぞれのテンソルは<code>.grad_fn</code>属性を持っており、これは<code>Tensor</code>によって作成された<code>Function</code>クラスである。</p>
+<p>もしデリバティブを計算したい場合は、テンソルの<code>.backward()</code>を実行する。テンソルがスカラー型の場合は、<code>.backward()</code>を実行する必要はないが、もし要素がより存在する場合には、テンソルの形があっているかを示す<code>gradient</code>属性を指定する必要がある。</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">torch</span>
+</pre></div>
+
+
+<p>計算を追跡するために、<code>required_grad=True</code>となるテンソルを作成</p>
+<div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">tensor([[1., 1.],</span>
+<span class="err">        [1., 1.]], requires_grad=True)</span>
+</pre></div>
+
+
+<p>テンソルの演算を実行</p>
+<div class="highlight"><pre><span></span><span class="n">y</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">2</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">tensor([[3., 3.],</span>
+<span class="err">        [3., 3.]], grad_fn=&lt;AddBackward0&gt;)</span>
+</pre></div>
+
+
+<p>yは演算結果なので、<code>grad_fn</code>を持つ</p>
+<div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">grad_fn</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">&lt;AddBackward0 object at 0x000001DB25EA2128&gt;</span>
+</pre></div>
+
+
+<p>yについてさらに演算を実行</p>
+<div class="highlight"><pre><span></span><span class="n">z</span> <span class="o">=</span> <span class="n">y</span> <span class="o">*</span> <span class="n">y</span> <span class="o">*</span> <span class="mi">3</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">z</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">out</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">tensor([[27., 27.],</span>
+<span class="err">        [27., 27.]], grad_fn=&lt;MulBackward0&gt;) tensor(27., grad_fn=&lt;MeanBackward0&gt;)</span>
+</pre></div>
+
+
+<p><code>.required_grad_()</code>で作成済みのテンソルの<code>requires_grad</code>フラグを変更する。何も与えていなければ<code>False</code>になる</p>
+<div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">a</span> <span class="o">=</span> <span class="p">((</span><span class="n">a</span> <span class="o">*</span> <span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">False</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">a</span><span class="o">.</span><span class="n">requires_grad_</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">True</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="n">b</span> <span class="o">=</span><span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">a</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">grad_fn</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">&lt;SumBackward0 object at 0x000001DB25EAF208&gt;</span>
+</pre></div>
+
+
+<h2>勾配</h2>
+<p>バックプロパゲーションについてトライしてみる。<code>out</code>は1要素のスカラーをもつので、<code>out.backward(torch.tensor(1.)</code>と同じになる</p>
+<div class="highlight"><pre><span></span><span class="n">out</span><span class="o">.</span><span class="n">backward</span><span class="p">()</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">grad</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">tensor([[4.5000, 4.5000],</span>
+<span class="err">        [4.5000, 4.5000]])</span>
+</pre></div>
+
+
+<p>4.5を要素に持つ行列が出力された、<code>out</code>テンソルを"<span class="math">\(o\)</span>"とする。 <span class="math">\(o = \frac{1}{4}\sum_i z_i, z_i = 3(x_i + 2)^2\)</span>で、<span class="math">\(\left.z_i\right|_{x_i=1} = 27\)</span>。したがって、<span class="math">\(\frac{\partial{o}}{\partial{x_i}} = \frac{3}{2}(x_i+2)\)</span>より、<span class="math">\(\left.\frac{\partial{o}}{\partial{x_i}}\right|_{x_i=1} = \frac{9}{2} = 1\)</span></p>
+<p>数学的には、ベクトル関数<span class="math">\(\vec{y} = f(\vec{{x}})\)</span>が与えられたとき、<span class="math">\(\vec{y}\)</span>の勾配はヤコブ行列を用いて、以下で定義される
+</p>
+<div class="math">$$
+J = \left(
+    \begin{array}{ccc}
+      \frac{\partial{y_1}}{\partial{x_1}} &amp; \ldots &amp; \frac{\partial{y_1}}{\partial{x_n}} \\
+      \vdots &amp; \ddots &amp; \ldots \\
+      \frac{\partial{y_n}}{\partial{x_1}} &amp; \ldots &amp; \frac{\partial{y_n}}{\partial{x_n}}
+    \end{array}
+  \right)
+$$</div>
+<p>一般的に、<code>torch.autograd</code>はベクトルとヤコビアンの掛け算のためのエンジンである、つまり、ベクトルが<span class="math">\(v = (v_1, v_2, \ldots, v_m)^T\)</span>で与えられたとき、行列積<span class="math">\(v^\mathrm{T} \cdot J\)</span>で計算される。もし<span class="math">\(v\)</span>がスカラーの関数<span class="math">\(l = g(\vec{v})\)</span>で計算された場合、<span class="math">\((l \in \mathbb{R}^1)\)</span>、<span class="math">\(v = \left(\frac{\partial{l}}{\partial{y_1}} \cdots \frac{\partial{l}}{\partial{y_m}}\right)\)</span>で、結合則からベクトルとヤコビアンの行列積は <span class="math">\(\vec{x}\)</span>からみた<span class="math">\(l\)</span>の勾配となる</p>
+<div class="math">$$
+J^\mathrm{T} \cdot v =
+\left(
+    \begin{array}{ccc}
+      \frac{\partial{y_1}}{\partial{x_1}} &amp; \ldots &amp; \frac{\partial{y_1}}{\partial{x_n}} \\
+      \vdots &amp; \ddots &amp; \ldots \\
+      \frac{\partial{y_m}}{\partial{x_1}} &amp; \ldots &amp; \frac{\partial{y_m}}{\partial{x_n}}
+    \end{array}
+  \right) \left(
+    \begin{array}{c}
+      \frac{\partial{l}}{\partial{y_1}} \\
+      \vdots \\
+      \frac{\partial{l}}{\partial{y_m}}
+    \end{array}
+  \right)
+  = \left(
+    \begin{array}{c}
+      \frac{\partial{l}}{\partial{x_1}} \\
+      \vdots \\
+      \frac{\partial{l}}{\partial{x_m}}
+    \end{array}
+  \right)
+$$</div>
+<p>ベクトルとヤコビアンの行列積について、例を見てみる</p>
+<div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">requires_grad</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">y</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="mi">2</span>
+<span class="k">while</span> <span class="n">y</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">norm</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">1000</span><span class="p">:</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">*</span> <span class="mi">2</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">tensor([ -225.5253, -1781.9635,  -195.9621], grad_fn=&lt;MulBackward0&gt;)</span>
+</pre></div>
+
+
+<p>この場合、yはスカラーではない。<code>torch.autograd</code>はヤコビアンを直接計算することはできない。しかし、ベクトルとヤコビアンの積が欲しいとき、<code>backward</code>にベクトルを引数として実行すればよい</p>
+<div class="highlight"><pre><span></span><span class="n">v</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="mf">0.00010</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">torch</span><span class="o">.</span><span class="n">float</span><span class="p">)</span>
+<span class="n">y</span><span class="o">.</span><span class="n">backward</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">grad</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">tensor([1.0240e+02, 1.0240e+03, 1.0240e-01])</span>
+</pre></div>
+
+
+<p><code>.requires_grad=True</code>による自動微分を停止する場合、コードブロックを<code>with torch.no_grad()</code>で囲ってあげる</p>
+<div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">((</span><span class="n">x</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">True</span>
+<span class="err">True</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">torch</span><span class="o">.</span><span class="n">no_grad</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">((</span><span class="n">x</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">False</span>
+</pre></div>
+
+
+<p>もしくは、<code>.detach()</code>を使う</p>
+<div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">detach</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">requires_grad</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="err">True</span>
+<span class="err">False</span>
+<span class="err">tensor(True)</span>
+</pre></div>
+
+
+<p><code>autograd.Function</code>については<a href="https://pytorch.org/docs/stable/autograd.html#function">こちらのドキュメント</a>を参照</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.3/latest.js?config=TeX-AMS-MML_HTMLorMML';
+
+    var configscript = document.createElement('script');
+    configscript.type = 'text/x-mathjax-config';
+    configscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'none' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        availableFonts: ['STIX', 'TeX']," +
+        "        preferredFont: 'STIX'," +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(configscript);
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+    </article>
+
+        <div class="tags">
+            <p>tags: <a href="./tag/deipuraningu.html">ディープラーニング</a>, <a href="./tag/ai.html">AI</a>, <a href="./tag/pytorch.html">PyTorch</a>, <a href="./tag/chiyutoriaru.html">チュートリアル</a></p>
+        </div>
+
+    <hr>
+
+        <div class="comments">
+            <h5>コメント</h5>
+            <div id="disqus_thread"></div>
+            <script type="text/javascript">
+                var disqus_shortname = 'whitepaper-tech-blog';
+                var disqus_identifier = 'pytorch-autograd.html';
+                var disqus_url = 'https://tech.wpaper-inc.com/pytorch-autograd.html';
+                (function() {
+                    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                    dsq.src = '//whitepaper-tech-blog.disqus.com/embed.js';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                })();
+            </script>
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                            <li>
+                                <a href="#">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-you can add links in your config file fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-another social link fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                    </ul>
+<p class="copyright text-muted">
+    Blog powered by <a href="http://getpelican.com">Pelican</a>,
+    which takes great advantage of <a href="http://python.org">Python</a>. <br />        &copy;  Whitepaper Inc.
+</p>                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="./theme/js/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="./theme/js/bootstrap.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="./theme/js/clean-blog.min.js"></script>
+
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-122761088-2', 'auto');
+    ga('send', 'pageview');
+</script>
+<script type="text/javascript">
+    var disqus_shortname = 'whitepaper-tech-blog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+
+</html>
