@@ -1,6 +1,6 @@
 Title: PyTorch Tutorial翻訳 - Autograd
 Date: 2020-02-02
-Category: ESP32
+Category: PyTorch
 Tags: ディープラーニング, AI, PyTorch, チュートリアル
 Slug: pytorch-autograd
 Authors: Kousuke Takeuchi

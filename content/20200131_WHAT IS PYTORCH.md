@@ -1,6 +1,6 @@
 Title: PyTorch Tutorial翻訳 - What is PyTorch
 Date: 2020-01-31
-Category: ESP32
+Category: PyTorch
 Tags: ディープラーニング, AI, PyTorch, チュートリアル
 Slug: pytorch-tutorial-what-is-pytorch
 Authors: Kousuke Takeuchi
