@@ -5,36 +5,43 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://www.wpaper-inc.com/</loc>
-<lastmod>2020-02-02T18:10:05-00:00</lastmod>
+<lastmod>2020-02-03T23:41:13-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://www.wpaper-inc.com/tags.html</loc>
-<lastmod>2020-02-02T18:10:05-00:00</lastmod>
+<lastmod>2020-02-03T23:41:13-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://www.wpaper-inc.com/categories.html</loc>
-<lastmod>2020-02-02T18:10:05-00:00</lastmod>
+<lastmod>2020-02-03T23:41:13-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://www.wpaper-inc.com/authors.html</loc>
-<lastmod>2020-02-02T18:10:05-00:00</lastmod>
+<lastmod>2020-02-03T23:41:13-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://www.wpaper-inc.com/archives.html</loc>
-<lastmod>2020-02-02T18:10:05-00:00</lastmod>
+<lastmod>2020-02-03T23:41:13-00:00</lastmod>
 <changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>https://www.wpaper-inc.com/learning-opencv3-chapter2.html</loc>
+<lastmod>2020-02-03T00:00:00+09:00</lastmod>
+<changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
@@ -82,7 +89,42 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://www.wpaper-inc.com/category/esp32.html</loc>
+<lastmod>2020-01-28T00:00:00+09:19</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>https://www.wpaper-inc.com/category/opencv3.html</loc>
+<lastmod>2020-02-03T00:00:00+09:19</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>https://www.wpaper-inc.com/category/pytorch.html</loc>
 <lastmod>2020-02-02T00:00:00+09:19</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>https://www.wpaper-inc.com/tag/hua-xiang-chu-li.html</loc>
+<lastmod>2020-02-03T00:00:00+09:19</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>https://www.wpaper-inc.com/tag/opencv3.html</loc>
+<lastmod>2020-02-03T00:00:00+09:19</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>https://www.wpaper-inc.com/tag/chiyutoriaru.html</loc>
+<lastmod>2020-02-03T00:00:00+09:19</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -103,13 +145,6 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://www.wpaper-inc.com/tag/pytorch.html</loc>
-<lastmod>2020-02-02T00:00:00+09:19</lastmod>
-<changefreq>daily</changefreq>
-<priority>0.5</priority>
-</url>
-
-<url>
-<loc>https://www.wpaper-inc.com/tag/chiyutoriaru.html</loc>
 <lastmod>2020-02-02T00:00:00+09:19</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
@@ -137,13 +172,6 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 </url>
 
 <url>
-<loc>https://www.wpaper-inc.com/tag/hua-xiang-chu-li.html</loc>
-<lastmod>2020-01-09T00:00:00+09:19</lastmod>
-<changefreq>daily</changefreq>
-<priority>0.5</priority>
-</url>
-
-<url>
 <loc>https://www.wpaper-inc.com/tag/jevois.html</loc>
 <lastmod>2020-01-09T00:00:00+09:19</lastmod>
 <changefreq>daily</changefreq>
@@ -152,7 +180,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://www.wpaper-inc.com/author/kousuke-takeuchi.html</loc>
-<lastmod>2020-02-02T00:00:00+09:19</lastmod>
+<lastmod>2020-02-03T00:00:00+09:19</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
