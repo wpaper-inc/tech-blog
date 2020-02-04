@@ -5,9 +5,9 @@ Tags: エッジコンピューティング, 画像処理, JeVois
 Slug: JeVois-Tutorial-3
 Authors: Kousuke Takeuchi
 Summary: JeVois上で、Googleが提供するTesseractを使ったOCR処理を実行します。
-Header_Cover: images/20200106_jevois-header.jpg
-Og_Image: images/20200106_JeVois_tg2e9bgo.jpg
-Twitter_Image: images/20200106_JeVois_tg2e9bgo.jpg
+Header_Cover: images/20200204_tesseract_logo.png
+Og_Image: https://tech.wpaper-inc.com/images/20200204_tesseract_logo.png
+Twitter_Image: https://tech.wpaper-inc.com/images/20200204_tesseract_logo.png
 
 手書き文字の認識にはMNISTを用いたディープラーニングが入門編としてよく紹介されていますが、業務レベルで使用できる有名な紙の書類の文字認識として、Googleがオープンソースで提供している「[Tesseract(テッセラクト)](https://tesseract-ocr.github.io/)」があります。
 
@@ -127,7 +127,7 @@ $ jevois-daemon --videomapping=38 --cameradev=/dev/video0
 
 実行した結果がこちら
 
-![20200204_tesseractocr-host.png]()
+![20200204_tesseractocr-host](images/20200204_tesseractocr-host.png)
 
 バチッと認識してくれるわけではなさそうですが、それなりに文字おこしが出来ていることが確認出来ました。
 
