@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="japanese">
+
+<head>
+            <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+        <title>JeVois Tutorial(3) Tesseractを使ったテキスト画像処理(OCR)</title>
+
+        <!-- Bootstrap Core CSS -->
+        <link href="./theme/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="./theme/css/clean-blog.min.css" rel="stylesheet">
+
+        <!-- Code highlight color scheme -->
+            <link href="./theme/css/code_blocks/darkly.css" rel="stylesheet">
+
+
+        <!-- Custom Fonts -->
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+
+
+        <meta name="description" content="JeVois上で、Googleが提供するTesseractを使ったOCR処理を実行します。">
+
+        <meta name="author" content="Kousuke Takeuchi">
+
+        <meta name="tags" content="エッジコンピューティング">
+        <meta name="tags" content="画像処理">
+        <meta name="tags" content="JeVois">
+
+	                <meta property="og:locale" content="">
+		<meta property="og:site_name" content="Whitepaper Tech Blog">
+
+	<meta property="og:type" content="article">
+            <meta property="article:author" content="./author/kousuke-takeuchi.html">
+	<meta property="og:url" content="./JeVois-Tutorial-3.html">
+	<meta property="og:title" content="JeVois Tutorial(3) Tesseractを使ったテキスト画像処理(OCR)">
+	<meta property="article:published_time" content="2020-02-04 00:00:00+09:00">
+            <meta property="og:description" content="JeVois上で、Googleが提供するTesseractを使ったOCR処理を実行します。">
+
+                <meta property="og:image" content="https://tech.wpaper-inc.com/images/20200204_tesseract_logo.png">
+    <link rel="icon" href="/favicon.ico">
+</head>
+
+<body class="article-JeVois-Tutorial-3">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="./">Whitepaper Tech Blog</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+        <header class="intro-header" style="background-image: url('./images/20200204_tesseract_logo.png')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <div class="post-heading">
+                        <h1>JeVois Tutorial(3) Tesseractを使ったテキスト画像処理(OCR)</h1>
+                        <span class="meta">Posted by
+                                <a href="./author/kousuke-takeuchi.html">Kousuke Takeuchi</a>
+                             on 火 04 2月 2020
+                        </span>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+    <!-- Post Content -->
+    <article>
+        <p>手書き文字の認識にはMNISTを用いたディープラーニングが入門編としてよく紹介されていますが、業務レベルで使用できる有名な紙の書類の文字認識として、Googleがオープンソースで提供している「<a href="https://tesseract-ocr.github.io/">Tesseract(テッセラクト)</a>」があります。</p>
+<p>Tesseractが素晴らしい理由として、日本語のOCRにも対応している上に、OpenCVでもモジュールとして使用できる点があります。</p>
+<p>今回は<a href="http://jevois.org/tutorials/ProgrammerInvOCR.html">こちらの記事</a>を参考に、TesseractをJeVois上で実行する方法について紹介します。</p>
+<h2>1. Pythonの新規モジュールプロジェクトを作成</h2>
+<p>TesseractはPythonで提供されているため、これまで紹介したC++のプロジェクトとは実装言語が異なります。しかし環境の構築方法や開発・デバイスでの実機動作についてはほぼ同じプロセスで行うことができます。</p>
+<p>・環境構築については、<a href="20200106_Ubuntu18.04でJeVois開発環境作成と、サンプルコードをコマンドラインから実行">こちら</a>を参考にしてください</p>
+<p>新規モジュールを作成するには、C++の場合は<code>jevois-create-module</code>コマンドを使用しましたが、Pythonの場合は<code>jevois-create-python-module</code>を使用します</p>
+<div class="highlight"><pre><span></span>$ jevois-create-python-module Whitepaper TesseractOCR
+</pre></div>
+
+
+<p>すると、C++の場合と同様にモジュールのフォルダが作成されます。一点C++の場合と相違があるのは、<code>src</code>以下のディレクトリに<code>.C</code>ファイルではなく<code>.py</code>ファイルが作成されることです。</p>
+<div class="highlight"><pre><span></span>$ tree ./tesseractocr
+
+tesseractocr
+├── CMakeLists.txt
+├── COPYING
+├── INSTALL
+├── README.md
+├── rebuild-host.sh
+├── rebuild-platform.sh
+├── share
+│   └── README.txt
+└── src
+    └── Modules
+        └── TesseractOCR
+            ├── TesseractOCR.py
+            └── postinstall
+</pre></div>
+
+
+<h2>2. TesseractOCRを使ったPython実装</h2>
+<p>続いて、<code>src/Modules/TesseractOCR/TesseractOCR.py</code>を編集します。</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">libjevois</span> <span class="k">as</span> <span class="nn">jevois</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="k">class</span> <span class="nc">TesseractOCR</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Tesseractの初期化</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ocr</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">OCRTesseract_create</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inframe</span><span class="p">,</span> <span class="n">outframe</span><span class="p">):</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">inframe</span><span class="o">.</span><span class="n">getCvBGR</span><span class="p">()</span>
+        <span class="c1"># 画像をTesseractに渡して、認識した文字を返す</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">text_OCRTesseract</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ocr</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="c1"># 認識した文字を画像に表示</span>
+        <span class="n">msgbox</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">60</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span> <span class="o">+</span> <span class="mi">80</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">putText</span><span class="p">(</span><span class="n">msgbox</span><span class="p">,</span> <span class="n">txt</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span> <span class="n">cv2</span><span class="o">.</span><span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span>
+          <span class="mf">0.8</span><span class="p">,</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">LINE_AA</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">img</span><span class="p">,</span> <span class="n">msgbox</span><span class="p">))</span>
+        <span class="c1"># 画像をシリアル経由で返す</span>
+        <span class="n">outframe</span><span class="o">.</span><span class="n">sendCv</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+</pre></div>
+
+
+<p>C++の場合と比べて、Pythonは非常にシンプルにかけます。<code>process</code>関数に引数として入力フレームと出力フレームが渡されるので、</p>
+<ol>
+<li>入力フレームから画像を取得</li>
+<li>画像をTesseractで解析し、OpenCVで画像操作する</li>
+<li>操作した画像を出力フレームに渡す</li>
+</ol>
+<p>といった感じで処理してあげればOKです。process関数内で処理してあげることに注意すれば、通常のPythonを使ったOpenCVのプロジェクトとほとんど相違なく実装を進めることができます。</p>
+<h2>3. ホストでの実行</h2>
+<p>続いてPythonのプログラムをホストマシンで実行します。まずはプロジェクトをホストビルドします</p>
+<div class="highlight"><pre><span></span>$ ./rebuild-host.sh 
+</pre></div>
+
+
+<p>次に、ビデオマッピングの設定ファイルに、TesseractOCRを追加します。</p>
+<div class="highlight"><pre><span></span>$ <span class="nb">echo</span> <span class="s2">&quot;YUYV 320 300 30 YUYV 320 240 30 Whitepaper TesseractOCR&quot;</span> <span class="p">|</span> sudo tee -a /jevois/config/videomappings.cfg
+</pre></div>
+
+
+<p>カメラデバイスが接続されていることを確認し、</p>
+<div class="highlight"><pre><span></span>$ v4l2-ctl --list-devices
+USB_Camera: USB_Camera <span class="o">(</span>usb-0000:00:0c.0-2<span class="o">)</span>:
+        /dev/video0
+        /dev/video1
+</pre></div>
+
+
+<p>さらに<code>jevois-daemon</code>でビデオマッピングのIDを調べます</p>
+<div class="highlight"><pre><span></span>$ jevois-daemon
+&gt; listmappings
+   ...
+   <span class="m">37</span> - OUT: YUYV 320x308 @ 30fps CAM: YUYV 320x240 @ 30fps MOD: JeVois:TensorFlowEasy C++
+   <span class="m">38</span> - OUT: YUYV 320x300 @ 30fps CAM: YUYV 320x240 @ 30fps MOD: Whitepaper:TesseractOCR Python
+   <span class="m">39</span> - OUT: YUYV 320x290 @ 60fps CAM: YUYV 320x240 @ 60fps MOD: JeVois:FirstVision C++
+   ...
+&gt; quit
+</pre></div>
+
+
+<p>こちらの環境では、38番に割り振られていたため、このIDとデバイスパスを指定して、再度jevois-daemonを起動します。</p>
+<div class="highlight"><pre><span></span>$ jevois-daemon --videomapping<span class="o">=</span><span class="m">38</span> --cameradev<span class="o">=</span>/dev/video0
+</pre></div>
+
+
+<p>実行した結果がこちら</p>
+<p><img alt="20200204_tesseractocr-host" src="images/20200204_tesseractocr-host.png"></p>
+<p>バチッと認識してくれるわけではなさそうですが、それなりに文字おこしが出来ていることが確認出来ました。</p>
+<h2>4. JeVoisデバイスでTesseractOCRを実行</h2>
+<p>jevois-daemonを一旦止めて、最後にJeVoisにモジュールを書き込んで、JeVois上でOCRを実行してみましょう。</p>
+<div class="highlight"><pre><span></span>$ jevois-usbsd start
+$ ./rebuild-platform --live
+</pre></div>
+
+
+<p>guvcviewでJeVoisから送られてくる処理済みの画像を確認します</p>
+<div class="highlight"><pre><span></span>$ guvcview -d /dev/video2
+</pre></div>
+
+
+<p>ホストマシンと同様に、OCR処理された画像を確認することができました。</p>
+    </article>
+
+        <div class="tags">
+            <p>tags: <a href="./tag/etsuzikonpiyuteingu.html">エッジコンピューティング</a>, <a href="./tag/hua-xiang-chu-li.html">画像処理</a>, <a href="./tag/jevois.html">JeVois</a></p>
+        </div>
+
+    <hr>
+
+        <div class="comments">
+            <h5>コメント</h5>
+            <div id="disqus_thread"></div>
+            <script type="text/javascript">
+                var disqus_shortname = 'whitepaper-tech-blog';
+                var disqus_identifier = 'JeVois-Tutorial-3.html';
+                var disqus_url = 'https://tech.wpaper-inc.com/JeVois-Tutorial-3.html';
+                (function() {
+                    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                    dsq.src = '//whitepaper-tech-blog.disqus.com/embed.js';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                })();
+            </script>
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                            <li>
+                                <a href="#">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-you can add links in your config file fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-another social link fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                    </ul>
+<p class="copyright text-muted">
+    Blog powered by <a href="http://getpelican.com">Pelican</a>,
+    which takes great advantage of <a href="http://python.org">Python</a>. <br />        &copy;  Whitepaper Inc.
+</p>                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="./theme/js/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="./theme/js/bootstrap.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="./theme/js/clean-blog.min.js"></script>
+
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-122761088-2', 'auto');
+    ga('send', 'pageview');
+</script>
+<script type="text/javascript">
+    var disqus_shortname = 'whitepaper-tech-blog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+
+</html>
