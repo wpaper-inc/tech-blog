@@ -5,36 +5,43 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://www.wpaper-inc.com/</loc>
-<lastmod>2020-02-06T20:20:28-00:00</lastmod>
+<lastmod>2020-02-07T01:00:23-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://www.wpaper-inc.com/tags.html</loc>
-<lastmod>2020-02-06T20:20:28-00:00</lastmod>
+<lastmod>2020-02-07T01:00:23-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://www.wpaper-inc.com/categories.html</loc>
-<lastmod>2020-02-06T20:20:28-00:00</lastmod>
+<lastmod>2020-02-07T01:00:23-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://www.wpaper-inc.com/authors.html</loc>
-<lastmod>2020-02-06T20:20:28-00:00</lastmod>
+<lastmod>2020-02-07T01:00:23-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
 <loc>https://www.wpaper-inc.com/archives.html</loc>
-<lastmod>2020-02-06T20:20:28-00:00</lastmod>
+<lastmod>2020-02-07T01:00:23-00:00</lastmod>
 <changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>https://www.wpaper-inc.com/JeVois-Tutorial-4.html</loc>
+<lastmod>2020-02-06T00:00:00+09:00</lastmod>
+<changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
@@ -96,7 +103,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://www.wpaper-inc.com/category/ai-hua-xiang-chu-li.html</loc>
-<lastmod>2020-02-04T00:00:00+09:19</lastmod>
+<lastmod>2020-02-06T00:00:00+09:19</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>
@@ -123,7 +130,21 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 </url>
 
 <url>
+<loc>https://www.wpaper-inc.com/tag/etsuzikonpiyuteingu.html</loc>
+<lastmod>2020-02-06T00:00:00+09:19</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
 <loc>https://www.wpaper-inc.com/tag/hua-xiang-chu-li.html</loc>
+<lastmod>2020-02-06T00:00:00+09:19</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>https://www.wpaper-inc.com/tag/jevois.html</loc>
 <lastmod>2020-02-06T00:00:00+09:19</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
@@ -139,20 +160,6 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
 <loc>https://www.wpaper-inc.com/tag/chiyutoriaru.html</loc>
 <lastmod>2020-02-06T00:00:00+09:19</lastmod>
-<changefreq>daily</changefreq>
-<priority>0.5</priority>
-</url>
-
-<url>
-<loc>https://www.wpaper-inc.com/tag/etsuzikonpiyuteingu.html</loc>
-<lastmod>2020-02-04T00:00:00+09:19</lastmod>
-<changefreq>daily</changefreq>
-<priority>0.5</priority>
-</url>
-
-<url>
-<loc>https://www.wpaper-inc.com/tag/jevois.html</loc>
-<lastmod>2020-02-04T00:00:00+09:19</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.5</priority>
 </url>

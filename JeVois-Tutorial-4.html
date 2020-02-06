@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="japanese">
+
+<head>
+            <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+        <title>JeVois Tutorial(4) USBシリアル経由のメッセージ送受信</title>
+
+        <!-- Bootstrap Core CSS -->
+        <link href="./theme/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Custom CSS -->
+        <link href="./theme/css/clean-blog.min.css" rel="stylesheet">
+
+        <!-- Code highlight color scheme -->
+            <link href="./theme/css/code_blocks/darkly.css" rel="stylesheet">
+
+
+        <!-- Custom Fonts -->
+        <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+        <link href='https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+
+
+
+        <meta name="author" content="Kousuke Takeuchi">
+
+        <meta name="tags" content="エッジコンピューティング">
+        <meta name="tags" content="画像処理">
+        <meta name="tags" content="JeVois">
+
+	                <meta property="og:locale" content="">
+		<meta property="og:site_name" content="Whitepaper Tech Blog">
+
+	<meta property="og:type" content="article">
+            <meta property="article:author" content="./author/kousuke-takeuchi.html">
+	<meta property="og:url" content="./JeVois-Tutorial-4.html">
+	<meta property="og:title" content="JeVois Tutorial(4) USBシリアル経由のメッセージ送受信">
+	<meta property="article:published_time" content="2020-02-06 00:00:00+09:00">
+
+                <meta property="og:image" content="https://tech.wpaper-inc.com/images/20200206_UserConnectY.jpg">
+    <link rel="icon" href="/favicon.ico">
+</head>
+
+<body class="article-JeVois-Tutorial-4">
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header page-scroll">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="./">Whitepaper Tech Blog</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <!-- Page Header -->
+        <header class="intro-header" style="background-image: url('./images/20200206_UserConnectY.jpg')">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <div class="post-heading">
+                        <h1>JeVois Tutorial(4) USBシリアル経由のメッセージ送受信</h1>
+                        <span class="meta">Posted by
+                                <a href="./author/kousuke-takeuchi.html">Kousuke Takeuchi</a>
+                             on 木 06 2月 2020
+                        </span>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+    <!-- Post Content -->
+    <article>
+        <p>前回まで、C++やPythonを使ったOpenCVの様々なプログラムをJeVois上で動かす方法を紹介してきました。しかしOpenCVを動かすことは今やWindowsやMacOSなど、様々な環境で出来てしまいます。JeVoisが通常のホストマシンの環境と比較して、優れているところは大きく次の4つだと考えています</p>
+<ul>
+<li>同等のGPUが搭載されたPCと比較して非常に安価である</li>
+<li>小型かつ実行環境はSDカードにイメージを焼くだけで整えることができる</li>
+<li>似たような小型AI系デバイスは、MicroPythonやTensorflowLiteなど特殊なライブラリしかサポートしていないためホストマシンで開発したソフトウェアがそのまま使えないことが多いが、(機械学習にも対応している)OpenCV4のみを使ったプログラムであれば、ほぼそのままJeVoisでも動く。</li>
+<li>Arduinoのように、簡単にシリアル経由でデータを送信できる。特殊なデバイスとの通信でない限り、USBレセプタクルさえあれば通信が可能</li>
+</ul>
+<p>例えばRaspberry PiもPythonやC++の環境を作成することができ、OpenCVを動かすこともできます。しかし同じプログラムでもJeVoisと比較して計算がGPU最適化されていないため、ソフトウェアの実行速度はかなり遅くなります。</p>
+<p>他にもMicroPythonを動かすことができるRISC-V搭載のAIカメラデバイスが特に中国で多く開発されていますが、これも特殊な環境のため、Tensorflowなどの学習済みモデルやOpenCVなどの使い慣れた画像処理ライブラリを使うことが難しくなります。</p>
+<p>もちろんGPUを搭載してそれなりの画像処理が出来る小型デバイスとなると、1万円を切るようなものはJeVois以外に見ることはほぼないです。</p>
+<p>以上の理由から、JeVoisは中小規模の業務レベルでは、低い開発コストと安い機材費でそれなりの効果を発揮してくれます。しかしこれまでの記事ではJeVois上で画像処理をしているだけで、処理した結果を別のプロセスで活用することが出来ませんでした。</p>
+<p>今回の記事では、JeVoisで画像処理した結果を別のデバイスにUSBシリアル経由で送信する方法についてお伝えします。そこで前回の記事で紹介したTesseractOCRで読み取った文字データを、ホストマシンへ送信するプロジェクトを作成していきます。</p>
+<h2>1. TesseractOCRを修正する</h2>
+<p>TesseractはPythonで提供されているため、これまで紹介したC++のプロジェクトとは実装言語が異なります。しかし環境の構築方法や開発・デバイスでの実機動作についてはほぼ同じプロセスで行うことができます。</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">libjevois</span> <span class="k">as</span> <span class="nn">jevois</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="k">class</span> <span class="nc">TesseractOCR</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ocr</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">OCRTesseract_create</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inframe</span><span class="p">,</span> <span class="n">outframe</span><span class="p">):</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">inframe</span><span class="o">.</span><span class="n">getCvBGR</span><span class="p">()</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">text_OCRTesseract</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ocr</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="n">msgbox</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">60</span><span class="p">,</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span> <span class="o">+</span> <span class="mi">80</span>
+        <span class="n">cv2</span><span class="o">.</span><span class="n">putText</span><span class="p">(</span><span class="n">msgbox</span><span class="p">,</span> <span class="n">txt</span><span class="p">,</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span> <span class="n">cv2</span><span class="o">.</span><span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span>
+          <span class="mf">0.8</span><span class="p">,</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">,</span><span class="mi">255</span><span class="p">),</span> <span class="mi">2</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">LINE_AA</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">((</span><span class="n">img</span><span class="p">,</span> <span class="n">msgbox</span><span class="p">))</span>
+
+        <span class="c1"># [追加] 読み取った文字をUSBシリアル経由で送信する</span>
+        <span class="n">jevois</span><span class="o">.</span><span class="n">sendSerial</span><span class="p">(</span><span class="s1">&#39;read text: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">txt</span><span class="p">))</span>
+
+        <span class="n">outframe</span><span class="o">.</span><span class="n">sendCv</span><span class="p">(</span><span class="n">out</span><span class="p">)</span>
+</pre></div>
+
+
+<p>これを<code>./rebuild-platform --live</code>でJeVoisに転送したら、次に<code>jevois-cmd</code>を使ってUSB経由でメッセージを送信するように設定します。<a href="http://jevois.org/tutorials/UserParseSerial.html">参考</a></p>
+<div class="highlight"><pre><span></span>$ jevois-cmd setpar serout USB
+$ jevois-cmd setpar serstyle Normal
+</pre></div>
+
+
+<p>コマンドについては、後ほど解説します。</p>
+<p>guvcviewで処理画像を確認しながら、Arduino IDEのシリアルモニタで受信メッセージを確認します。</p>
+<div class="highlight"><pre><span></span>$ guvcview -d /dev/video0
+</pre></div>
+
+
+<p>シリアルモニタでは、シリアルポートを<code>/dev/ttyACM0</code>、ボートレートを<code>115200</code>に設定します。</p>
+<p>guvcviewでカメラ画像を確認し、シリアルモニタにOCRで読みだしたテキストが送信されていることが確認できます。</p>
+<p><img alt="20200206_tesseract_serial" src="images/20200206_tesseract_serial.png"></p>
+<h2>2. JeVoisにおけるUSBシリアル通信の基礎</h2>
+<p>公式には<a href="http://jevois.org/doc/UserConnect.html">こちら</a>に情報が掲載されています。</p>
+<p>まずJeVoisには2種類の通信方法があります。</p>
+<ul>
+<li>USB 2.0の5ピンコネクタ。電源供給用とホストマシンへの動画送信に使用されます</li>
+<li>4ピン JST-SH 1.0ミリコネクタ。Arduinoなどと通信するように、TTLレベルのUARTを使った通信に使用されます</li>
+</ul>
+<p>より詳細なことは公式サイトを確認してもらいたいのですが、JeVoisからはUSBを使った通信と4ピンケーブルを使った通信方法があります。</p>
+<p><strong>USB</strong></p>
+<p><img alt="20200206_UserConnectWeakHostCharger" src="images/20200206_UserConnectWeakHostCharger.jpg"></p>
+<p>USBケーブルの端子には、ミニUSBポートとオスポート２つがあります。ミニUSBポートはJeVois本体にとりつけ、残りのうちケーブルが二股になっている方をホストマシンに、一股になっている方を外部電源に接続します</p>
+<p><strong>4ピンコネクタ</strong></p>
+<p><img alt="20200206_UserConnectUSBbattArdu2" src="images/20200206_UserConnectUSBbattArdu2.jpg"></p>
+<p>4ピンコネクタについては、今回の記事では扱いません。<a href="http://jevois.org/doc/UserSerial.html">公式ページ</a>を確認してください。</p>
+<h2>3. シリアル通信のタイプ</h2>
+<p>シリアル通信には、「<strong>serlog</strong>」と「<strong>serout</strong>」があります。serlogはデバッグメッセージを送信するため、seroutはArduinoやホストマシンなど外部デバイスにメッセージを送信するために使用されます。</p>
+<p>本来は4ピンコネクタからseroutでメッセージを送り、USBシリアルからserlogを送信しますが、これは自由に入れ替えることが出来ます。</p>
+<p>詳細なドキュメントは、<a href="http://jevois.org/doc/UserCli.html">Command-line interface user guide</a>に掲載されています。</p>
+<h2>4. USB経由で動画を送るのをやめ、メッセージのみを送信</h2>
+<p>[under written]</p>
+    </article>
+
+        <div class="tags">
+            <p>tags: <a href="./tag/etsuzikonpiyuteingu.html">エッジコンピューティング</a>, <a href="./tag/hua-xiang-chu-li.html">画像処理</a>, <a href="./tag/jevois.html">JeVois</a></p>
+        </div>
+
+    <hr>
+
+        <div class="comments">
+            <h5>コメント</h5>
+            <div id="disqus_thread"></div>
+            <script type="text/javascript">
+                var disqus_shortname = 'whitepaper-tech-blog';
+                var disqus_identifier = 'JeVois-Tutorial-4.html';
+                var disqus_url = 'https://tech.wpaper-inc.com/JeVois-Tutorial-4.html';
+                (function() {
+                    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                    dsq.src = '//whitepaper-tech-blog.disqus.com/embed.js';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+                })();
+            </script>
+            <noscript>Please enable JavaScript to view the comments.</noscript>
+        </div>
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                    <ul class="list-inline text-center">
+                            <li>
+                                <a href="#">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-you can add links in your config file fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#">
+                                    <span class="fa-stack fa-lg">
+                                        <i class="fa fa-circle fa-stack-2x"></i>
+                                        <i class="fa fa-another social link fa-stack-1x fa-inverse"></i>
+                                    </span>
+                                </a>
+                            </li>
+                    </ul>
+<p class="copyright text-muted">
+    Blog powered by <a href="http://getpelican.com">Pelican</a>,
+    which takes great advantage of <a href="http://python.org">Python</a>. <br />        &copy;  Whitepaper Inc.
+</p>                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="./theme/js/jquery.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="./theme/js/bootstrap.min.js"></script>
+
+        <!-- Custom Theme JavaScript -->
+        <script src="./theme/js/clean-blog.min.js"></script>
+
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-122761088-2', 'auto');
+    ga('send', 'pageview');
+</script>
+<script type="text/javascript">
+    var disqus_shortname = 'whitepaper-tech-blog';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+</script>
+</body>
+
+</html>
